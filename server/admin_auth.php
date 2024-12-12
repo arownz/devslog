@@ -28,10 +28,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (password_verify($password, $admin['password'])) {
                 echo json_encode(["success" => true, "message" => "Login successful", "admin" => ["id" => $admin['id'], "email" => $admin['email']]]);
             } else {
-                echo json_encode(["success" => false, "message" => "Invalid email or password"]);
+                error_log("Password verification failed for email: $email");
+                echo json_encode(["success" => false, "message" => "Invalid password"]);
             }
         } else {
-            echo json_encode(["success" => false, "message" => "Invalid email or password"]);
+            error_log("Email not found: $email");
+            echo json_encode(["success" => false, "message" => "Email not found"]);
         }
     } else {
         echo json_encode(["success" => false, "message" => "Invalid action"]);
@@ -39,3 +41,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 } else {
     echo json_encode(["success" => false, "message" => "Invalid request method"]);
 }
+
