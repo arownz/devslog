@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import DevlogHome from './components/DevlogHome';
+import Blogs from './components/blogs/Blogs';
 import { SignUpForm } from './components/signup/SignUpForm';
 import { SignInForm } from './components/signin/SignInForm';
 import { AdminSignIn } from './components/admin/AdminSignIn';
@@ -11,6 +12,7 @@ function App() {
       <div className="App">
         <Routes>
           <Route path="/" element={<DevlogHome />} />
+          <Route path="/blogs" element={<Blogs />} />
           <Route path="/about" element={<About />} />
           <Route path="/signup" element={<SignUpForm />} />
           <Route path="/signin" element={<SignInForm />} />
