@@ -10,14 +10,34 @@ export function AdminSignIn() {
     password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle admin form submission
-    console.log("Admin sign in:", formData);
-    // Add your admin authentication logic here
+    setError("");
+    try {
+      const response = await fetch('http://localhost/devslog/server/admin_auth.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ...formData, action: 'login' }),
+      });
+      const data = await response.json();
+      console.log('Response:', data); // Log the response
+      if (data.success) {
+        localStorage.setItem('admin', JSON.stringify(data.admin));
+        navigate('/admin-dashboard');
+      } else {
+        setError(data.message || "Login failed");
+      }
+    } catch (error) {
+      console.error('Error:', error); // Log the error
+      setError("An error occurred. Please try again.");
+    }
   };
+
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -26,6 +46,7 @@ export function AdminSignIn() {
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
+  
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
       <Header />
@@ -51,7 +72,9 @@ export function AdminSignIn() {
             </div>
             <div className="md:w-1/2 p-12">
               <h1 className="text-3xl font-bold text-gray-800 mb-8">Admin Sign In</h1>
+              {error && <p className="text-red-500 mb-4">{error}</p>}
               <form onSubmit={handleSubmit} className="space-y-6">
+
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
                   <input

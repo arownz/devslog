@@ -79,7 +79,7 @@ export default function Header() {
                 User Sign In
               </Link>
               <Link
-                to="/admin/signin"
+                to="/admin-signin"
                 className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-blue-700 transition duration-300 text-center"
                 onClick={closeModal}
               >

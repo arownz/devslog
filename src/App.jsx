@@ -1,10 +1,13 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import DevlogHome from './components/DevlogHome';
 import Blogs from './components/blogs/Blogs';
+import About from './components/about/About';
 import { SignUpForm } from './components/signup/SignUpForm';
 import { SignInForm } from './components/signin/SignInForm';
+import { UserDashboard } from './components/dashboard/UserDashboard';
 import { AdminSignIn } from './components/admin/AdminSignIn';
-import About from './components/about/About';
+import { AdminDashboard } from './components/admin/AdminDashboard';
+
 
 function App() {
   return (
@@ -16,8 +19,11 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/signup" element={<SignUpForm />} />
           <Route path="/signin" element={<SignInForm />} />
-          <Route path="/admin/signin" element={<AdminSignIn />} />
+          <Route path="/user-dashboard" element={<UserDashboard />} />
+          <Route path="/admin-signin" element={<AdminSignIn />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
         </Routes>
+
       </div>
     </Router>
   );
