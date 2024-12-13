@@ -30,8 +30,8 @@ export default function Footer() {
               className="w-21 h-20 mx-auto md:ml-auto md:mr-0 mb-4"
               alt="Devlog Logo"
             />
-            <p className="text-sm">© Devlog {new Date().getFullYear()}</p>
-            <p className="text-sm mt-2">Created by Devlog&apos;s team</p>
+            <p className="text-sm">© Devslog {new Date().getFullYear()}</p>
+            <p className="text-sm mt-2">Created by Devslog&apos;s team</p>
           </div>
         </div>
       </div>

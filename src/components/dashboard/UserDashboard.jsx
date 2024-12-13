@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import Header from '../Header';
-import Footer from '../Footer';
 import { useNavigate } from 'react-router-dom';
 
 export function UserDashboard() {
@@ -32,7 +31,6 @@ export function UserDashboard() {
           Logout
         </button>
       </main>
-      <Footer />
     </div>
   );
 }

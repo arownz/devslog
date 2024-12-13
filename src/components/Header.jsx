@@ -1,13 +1,23 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Header() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState(null);
+  const [showDropdown, setShowDropdown] = useState(false);
 
+  useEffect(() => {
+    const loggedInUser = localStorage.getItem('user');
+    if (loggedInUser) {
+      setIsLoggedIn(true);
+      setUser(JSON.parse(loggedInUser));
+    }
+  }, []);
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
-    // You would implement the actual dark mode logic here
+    // Implement the actual dark mode logic here
   };
 
   const handleSignInClick = () => {
@@ -18,6 +28,17 @@ export default function Header() {
     setShowModal(false);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    setIsLoggedIn(false);
+    setUser(null);
+    setShowDropdown(false);
+    // Redirect to home page or signin page
+  };
+
+  const toggleDropdown = () => {
+    setShowDropdown(!showDropdown);
+  };
   return (
     <header className="bg-white shadow-md">
       <div className="container mx-auto px-4 py-4 flex items-center">
@@ -27,7 +48,7 @@ export default function Header() {
             className="w-13 h-14 mr-1"
             alt="Devlog Logo"
           />
-          DEVLOG
+          DEVSLOG
         </Link>
         <nav className="flex space-x-6 text-lg">
           <Link to="/blogs" className="text-gray-700 hover:text-green-700">Blogs</Link>
@@ -57,12 +78,53 @@ export default function Header() {
               </svg>
             )}
           </button>
-          <button
-            onClick={handleSignInClick}
-            className="bg-green-600 text-white px-4 py-2 rounded-full font-semibold hover:bg-green-700"
-          >
-            Sign In
-          </button>
+          
+          {isLoggedIn ? (
+            <div className="relative">
+              <button
+                onClick={toggleDropdown}
+                className="flex items-center space-x-2 text-gray-700 hover:text-green-700"
+              >
+                <img
+                  src={user.avatar || "https://via.placeholder.com/40"}
+                  alt="User avatar"
+                  className="w-8 h-8 rounded-full"
+                />
+                <span>{user.name}</span>
+              </button>
+              {showDropdown && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+                  <Link
+                    to="/dashboard"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    onClick={() => setShowDropdown(false)}
+                  >
+                    Dashboard
+                  </Link>
+                  <Link
+                    to="/profile"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    onClick={() => setShowDropdown(false)}
+                  >
+                    Profile
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <button
+              onClick={handleSignInClick}
+              className="bg-green-600 text-white px-4 py-2 rounded-full font-semibold hover:bg-green-700"
+            >
+              Sign In
+            </button>
+          )}
         </div>
       </div>
 
@@ -88,7 +150,7 @@ export default function Header() {
             </div>
             <button
               onClick={closeModal}
-              className="mt-6 text-gray-600  hover:text-gray-800 transition duration-300 w-full text-center"
+              className="mt-6 text-gray-600 hover:text-gray-800 transition duration-300 w-full text-center"
             >
               Close
             </button>
