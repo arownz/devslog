@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import Header from '../Header';
-import Footer from '../Footer';
+
 
 export function AdminDashboard() {
   const navigate = useNavigate();
@@ -18,7 +17,6 @@ export function AdminDashboard() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-4">Welcome, Admin!</h1>
         <p className="mb-4">This is your admin dashboard.</p>
@@ -29,7 +27,6 @@ export function AdminDashboard() {
           Logout
         </button>
       </main>
-      <Footer />
     </div>
   );
 }
