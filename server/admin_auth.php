@@ -1,5 +1,8 @@
 <?php
 require_once 'config.php';
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 header("Access-Control-Allow-Origin: http://localhost:5173");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
@@ -9,14 +12,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
 
-// Rest of your code...
-
 // Enable error reporting
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $data = json_decode(file_get_contents("php://input"));
+    $data = json_decode(file_get_contents(filename: "php://input"));
 
     if (isset($data->action) && $data->action === 'login') {
         $email = $conn->real_escape_string($data->email);

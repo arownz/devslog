@@ -24,8 +24,12 @@ export function AdminSignIn() {
         },
         body: JSON.stringify({ ...formData, action: 'login' }),
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const data = await response.json();
-      console.log('Response:', data); // Log the response
+      console.log('Response:', data);
       if (data.success) {
         localStorage.setItem('admin', JSON.stringify(data.admin));
         navigate('/admin-dashboard');
@@ -33,12 +37,10 @@ export function AdminSignIn() {
         setError(data.message || "Login failed");
       }
     } catch (error) {
-      console.error('Error:', error); // Log the error
+      console.error('Error:', error);
       setError("An error occurred. Please try again.");
     }
   };
-
-
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

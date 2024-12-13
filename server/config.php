@@ -10,5 +10,5 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Remove or comment out this line in production
-echo "Connected successfully";
+// Remove this line in production
+// echo "Connected successfully";
