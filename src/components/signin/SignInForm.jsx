@@ -4,7 +4,6 @@ import Header from "../Header";
 import Footer from "../Footer";
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 
-
 export function SignInForm() {
     const [formData, setFormData] = useState({
         email: "",
@@ -13,10 +12,33 @@ export function SignInForm() {
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        // Handle form submission
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      try {
+        const response = await fetch('http://localhost/devslog/server/user_auth.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ ...formData, action: 'login' }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        if (data.success) {
+          localStorage.setItem('user', JSON.stringify(data.user));
+          navigate('/user-dashboard');
+        } else {
+          alert(data.message || "Login failed");
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert("An error occurred. Please try again.");
+      }
     };
+
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };

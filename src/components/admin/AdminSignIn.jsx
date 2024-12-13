@@ -23,6 +23,7 @@ export function AdminSignIn() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ ...formData, action: 'login' }),
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -38,9 +39,9 @@ export function AdminSignIn() {
       }
     } catch (error) {
       console.error('Error:', error);
-      setError("An error occurred. Please try again.");
+      setError(`An error occurred: ${error.message}. Please check your server connection and try again.`);
     }
-  };
+  };  
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

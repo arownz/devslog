@@ -4,7 +4,6 @@ import Header from "../Header";
 import Footer from "../Footer";
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 
-
 export function SignUpForm() {
   const [formData, setFormData] = useState({
     username: "",
@@ -12,14 +11,42 @@ export function SignUpForm() {
     password: "",
     confirmPassword: "",
   });
+  
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission
+    if (formData.password !== formData.confirmPassword) {
+      alert("Passwords don't match");
+      return;
+    }
+    try {
+      const response = await fetch('http://localhost/devslog/server/user_auth.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ...formData, action: 'register' }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      if (data.success) {
+        alert("Registration successful! Please sign in.");
+        navigate('/signin');
+      } else {
+        alert(data.message || "Registration failed");
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert("An error occurred. Please try again.");
+    }
   };
+
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

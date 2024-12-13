@@ -2,23 +2,34 @@
 require_once 'config.php';
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
+ini_set('log_errors', 1);
+ini_set('error_log', 'C:/xampp/htdocs/devslog/server/php_errors.log');
 
+// CORS headers
 header("Access-Control-Allow-Origin: http://localhost:5173");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
-header("Content-Type: application/json");
+header("Access-Control-Allow-Credentials: true");
 
+// Handle preflight OPTIONS request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    exit(0);
+    http_response_code(204);
+    exit();
 }
 
-// Enable error reporting
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+header("Content-Type: application/json");
 
+// Debug: Log the request method
+error_log("Request method: " . $_SERVER['REQUEST_METHOD']);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $data = json_decode(file_get_contents(filename: "php://input"));
+    $input = file_get_contents('php://input');
 
+    // Debug: Log the raw input
+    error_log("Raw input: " . $input);
+    $data = json_decode($input);
+
+    // Debug: Log the decoded data
+    error_log("Decoded data: " . print_r($data, true));
     if (isset($data->action) && $data->action === 'login') {
         $email = $conn->real_escape_string($data->email);
         $password = $data->password;
@@ -26,6 +37,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $sql = "SELECT * FROM admintblaccounts WHERE email = '$email'";
         $result = $conn->query($sql);
 
+        // Debug: Log the SQL query and result
+        error_log("SQL query: " . $sql);
+        error_log("Query result: " . print_r($result, true));
         if ($result === false) {
             echo json_encode(["success" => false, "message" => "Database error: " . $conn->error]);
             exit;
