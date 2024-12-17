@@ -1,16 +1,20 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useNavigate, Route, Routes } from 'react-router-dom';
 import Header from '../Header';
-import { useNavigate } from 'react-router-dom';
+import Sidebar from '../Sidebar';
 
 export function UserDashboard() {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem('user'));
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    if (!user) {
+    const loggedInUser = localStorage.getItem('user');
+    if (loggedInUser) {
+      setUser(JSON.parse(loggedInUser));
+    } else {
       navigate('/signin');
     }
-  }, [user, navigate]);
+  }, [navigate]);
 
   const handleLogout = () => {
     localStorage.removeItem('user');
@@ -18,19 +22,58 @@ export function UserDashboard() {
   };
 
   if (!user) return null;
-  return (
+
+return (
     <div className="flex flex-col min-h-screen">
       <Header />
-      <main className="flex-grow container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-4">Welcome, {user.username}!</h1>
-        <p className="mb-4">Email: {user.email}</p>
-        <button
-          onClick={handleLogout}
-          className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-        >
-          Logout
-        </button>
-      </main>
+      <div className="flex flex-grow">
+        <Sidebar isAdmin={false} />
+        <main className="flex-grow p-8 ml-64">
+          <Routes>
+            <Route path="/" element={<UserDashboardHome user={user} handleLogout={handleLogout} />} />
+            <Route path="/bookmarks" element={<Bookmarks />} />
+            <Route path="/history" element={<ReadingHistory />} />
+            <Route path="/settings" element={<UserSettings />} />
+          </Routes>
+        </main>
+      </div>
     </div>
   );
 }
+
+import PropTypes from 'prop-types';
+function UserDashboardHome({ user, handleLogout }) {
+  return (
+    <>
+      <h1 className="text-3xl font-bold mb-4">Welcome, {user.username}!</h1>
+      <p className="mb-4">Email: {user.email}</p>
+      <button
+        onClick={handleLogout}
+        className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+      >
+        Logout
+      </button>
+    </>
+  );
+}
+
+UserDashboardHome.propTypes = {
+  user: PropTypes.shape({
+    username: PropTypes.string.isRequired,
+    email: PropTypes.string.isRequired,
+  }).isRequired,
+  handleLogout: PropTypes.func.isRequired,
+};
+
+function Bookmarks() {
+  return <h2>Bookmarks</h2>;
+}
+
+function ReadingHistory() {
+  return <h2>Reading History</h2>;
+}
+
+function UserSettings() {
+  return <h2>User Settings</h2>;
+}
+

@@ -8,7 +8,6 @@ import { UserDashboard } from './components/dashboard/UserDashboard';
 import { AdminSignIn } from './components/admin/AdminSignIn';
 import { AdminDashboard } from './components/admin/AdminDashboard';
 
-
 function App() {
   return (
     <Router>
@@ -19,11 +18,10 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/signup" element={<SignUpForm />} />
           <Route path="/signin" element={<SignInForm />} />
-          <Route path="/user-dashboard" element={<UserDashboard />} />
+          <Route path="/user-dashboard/*" element={<UserDashboard />} />
           <Route path="/admin-signin" element={<AdminSignIn />} />
-          <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/admin-dashboard/*" element={<AdminDashboard />} />
         </Routes>
-
       </div>
     </Router>
   );
