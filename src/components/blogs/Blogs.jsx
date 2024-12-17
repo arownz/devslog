@@ -94,7 +94,7 @@ export default function Blogs() {
     <div className="flex flex-col min-h-screen bg-white">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
-        <h1 className="text-4xl font-bold mb-8">All Blog Posts</h1>
+        <h1 className="text-4xl font-bold mb-8">All Forum Posts</h1>
         <div className="flex flex-col lg:flex-row gap-8">
           <section className="w-full lg:w-2/3">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

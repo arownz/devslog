@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 
 export default function Header() {
@@ -7,14 +7,30 @@ export default function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const navigate = useNavigate();
 
+  const getDashboardLink = () => {
+    if (isAdmin) {
+      return '/admin-dashboard';
+    } else if (isLoggedIn) {
+      return '/user-dashboard';
+    }
+    return '/';
+  };
   useEffect(() => {
     const loggedInUser = localStorage.getItem('user');
+    const loggedInAdmin = localStorage.getItem('admin');
     if (loggedInUser) {
       setIsLoggedIn(true);
       setUser(JSON.parse(loggedInUser));
+    } else if (loggedInAdmin) {
+      setIsLoggedIn(true);
+      setIsAdmin(true);
+      setUser(JSON.parse(loggedInAdmin));
     }
   }, []);
+
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
     // Implement the actual dark mode logic here
@@ -29,20 +45,27 @@ export default function Header() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('user');
+    if (isAdmin) {
+      localStorage.removeItem('admin');
+    } else {
+      localStorage.removeItem('user');
+    }
     setIsLoggedIn(false);
     setUser(null);
+    setIsAdmin(false);
     setShowDropdown(false);
-    // Redirect to home page or signin page
+    navigate('/'); // Redirect to DevlogHome
   };
 
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
   };
+
+  {/* Dashboard*/ }
   return (
     <header className="bg-white shadow-md">
       <div className="container mx-auto px-4 py-4 flex items-center">
-        <Link to="/" className="flex items-center text-2xl font-bold text-green-700 mr-8">
+        <Link to={getDashboardLink()} className="flex items-center text-2xl font-bold text-green-700 mr-8">
           <img
             src="https://cdn.builder.io/api/v1/image/assets/TEMP/1b7534d8e2e8aebb42d2c416dac3979c0a09e9a096b9a214a7d1e6af7326f39a?placeholderIfAbsent=true&apiKey=b3b06d4cff934296b9a04a1b4e7061de"
             className="w-13 h-14 mr-1"
@@ -50,16 +73,46 @@ export default function Header() {
           />
           DEVSLOG
         </Link>
-        <nav className="flex space-x-6 text-lg">
-          <Link to="/blogs" className="text-gray-700 hover:text-green-700">Blogs</Link>
-          <Link to="/about" className="text-gray-700 hover:text-green-700">About</Link>
-        </nav>
-        <div className="flex items-center ml-auto space-x-4">
-          <form className="hidden md:flex items-center bg-gray-100 rounded-full px-4 py-2">
+
+
+
+        {/* Guest Header */}
+        {!isLoggedIn && (
+          <nav className="flex space-x-6 text-lg">
+            <Link to="/blogs" className="text-gray-700 hover:text-green-700">Posts</Link>
+            <Link to="/about" className="text-gray-700 hover:text-green-700">About</Link>
+          </nav>
+        )}
+
+        {/* User Header */}
+        {isLoggedIn && !isAdmin && (
+          <nav className="flex space-x-6 text-lg">
+            <Link to="/blogs" className="text-gray-700 hover:text-green-700">Posts</Link>
+            <button className="text-gray-700 hover:text-green-700">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Add Post
+            </button>
+          </nav>
+        )}
+
+        {/* Admin Header */}
+        {isLoggedIn && isAdmin && (
+          <nav className="flex space-x-6 text-lg">
+            <Link to="/post-management" className="text-gray-700 hover:text-green-700">Post Management</Link>
+            <Link to="/user-management" className="text-gray-700 hover:text-green-700">User Management</Link>
+            <Link to="/site-settings" className="text-gray-700 hover:text-green-700">Site Settings</Link>
+          </nav>
+        )}
+
+        {/* Search Bar (centered for all views) */}
+        <div className="flex-grow flex justify-center">
+          <form className="w-1/2 flex items-center bg-gray-100 rounded-full px-4 py-2">
             <input
               type="search"
-              placeholder="Search Post..."
-              className="bg-transparent border-none outline-none"
+              placeholder="Search..."
+              className="w-full bg-transparent border-none outline-none"
             />
             <button type="submit" aria-label="Search">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -67,6 +120,9 @@ export default function Header() {
               </svg>
             </button>
           </form>
+        </div>
+
+        <div className="flex items-center ml-auto space-x-4">
           <button onClick={toggleDarkMode} className="p-2 rounded-full bg-gray-200 hover:bg-gray-300">
             {isDarkMode ? (
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -78,45 +134,48 @@ export default function Header() {
               </svg>
             )}
           </button>
-          
+
           {isLoggedIn ? (
-            <div className="relative">
-              <button
-                onClick={toggleDropdown}
-                className="flex items-center space-x-2 text-gray-700 hover:text-green-700"
-              >
-                <img
-                  src={user.avatar || "https://via.placeholder.com/40"}
-                  alt="User avatar"
-                  className="w-8 h-8 rounded-full"
-                />
-                <span>{user.name}</span>
-              </button>
-              {showDropdown && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
-                  <Link
-                    to="/dashboard"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    onClick={() => setShowDropdown(false)}
-                  >
-                    Dashboard
-                  </Link>
-                  <Link
-                    to="/profile"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    onClick={() => setShowDropdown(false)}
-                  >
-                    Profile
-                  </Link>
-                  <button
-                    onClick={handleLogout}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    Logout
-                  </button>
-                </div>
+            <>
+              {!isAdmin && (
+                <button className="relative p-2 text-gray-700 hover:text-green-700">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                  </svg>
+                  {/* Add notification badge here if needed */}
+                </button>
               )}
-            </div>
+              <div className="relative">
+                <button
+                  onClick={toggleDropdown}
+                  className="flex items-center space-x-2 text-gray-700 hover:text-green-700"
+                >
+                  <img
+                    src={user.avatar || "https://via.placeholder.com/40"}
+                    alt="User avatar"
+                    className="w-8 h-8 rounded-full"
+                  />
+                  <span>{user.name}</span>
+                </button>
+                {showDropdown && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+                    <Link
+                      to="/profile"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => setShowDropdown(false)}
+                    >
+                      Profile
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            </>
           ) : (
             <button
               onClick={handleSignInClick}
