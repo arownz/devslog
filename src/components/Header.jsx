@@ -47,15 +47,17 @@ export default function Header() {
   const handleLogout = () => {
     if (isAdmin) {
       localStorage.removeItem('admin');
+      navigate('/admin-signin');
     } else {
       localStorage.removeItem('user');
+      navigate('/signin');
     }
     setIsLoggedIn(false);
     setUser(null);
     setIsAdmin(false);
     setShowDropdown(false);
-    navigate('/'); // Redirect to DevlogHome
   };
+  
 
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
