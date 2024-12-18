@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 export function UserDashboard() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   useEffect(() => {
     const loggedInUser = localStorage.getItem('user');
@@ -28,8 +29,8 @@ return (
     <div className="flex flex-col min-h-screen">
       <Header />
       <div className="flex flex-grow">
-        <Sidebar isAdmin={false} />
-        <main className="flex-grow p-8 ml-64 sm:ml-64">
+        <Sidebar isAdmin={false} setIsSidebarOpen={setIsSidebarOpen} />
+        <main className={`flex-grow p-8 transition-all duration-300 ${isSidebarOpen ? 'ml-64' : 'ml-16'}`}>
           <Routes>
             <Route path="/" element={<UserDashboardHome user={user} handleLogout={handleLogout} />} />
             <Route path="/bookmarks" element={<Bookmarks />} />
@@ -45,7 +46,7 @@ return (
 function UserDashboardHome({ user, handleLogout }) {
   return (
     <>
-      <h1 className="text-3xl font-bold mb-4">Welcome, {user.username}!</h1>
+      <h1 className="text-3x10 font-bold mb-4">Welcome, {user.username}!</h1>
       <p className="mb-4">Email: {user.email}</p>
       <button
         onClick={handleLogout}
