@@ -64,21 +64,22 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 left-0 right-0 z-20">
-      <div className="container mx-auto px-4 py-5 flex items-center">
+    <header className="bg-white shadow-sm sticky top-0 left-0 right-0 z-30">
+    <div className="container mx-auto px-0 py-5 flex items-center">
         <Link to={getDashboardLink()} className="flex items-center text-2xl font-bold text-green-700 mr-8">
           <img
             src="https://cdn.builder.io/api/v1/image/assets/TEMP/1b7534d8e2e8aebb42d2c416dac3979c0a09e9a096b9a214a7d1e6af7326f39a?placeholderIfAbsent=true&apiKey=b3b06d4cff934296b9a04a1b4e7061de"
-            className="w-10 h-10 mr-2"
+            className="w-15 h-10 mr-0"
             alt="Devlog Logo"
           />
           DEVSLOG
         </Link>
 
+
         {/* Guest Header */}
         {!isLoggedIn && (
           <nav className="flex space-x-6 text-lg">
-            <Link to="/blogs" className="text-gray-700 hover:text-green-700 transition-colors duration-200">Posts</Link>
+            <Link to="/posts" className="text-gray-700 hover:text-green-700 transition-colors duration-200">Posts</Link>
             <Link to="/about" className="text-gray-700 hover:text-green-700 transition-colors duration-200">About</Link>
           </nav>
         )}
@@ -107,7 +108,7 @@ export default function Header() {
 
         {/* Search Bar (centered for all views) */}
         <div className="flex-grow flex justify-center">
-          <form className="w-1/2 flex items-center bg-gray-100 rounded-full px-4 py-2">
+          <form className="w-1/3 flex items-center bg-gray-100 rounded-full px-4 py-2">
             <input
               type="search"
               placeholder="Search..."
@@ -164,6 +165,13 @@ export default function Header() {
                       onClick={() => setShowDropdown(false)}
                     >
                       Profile
+                    </Link>
+                    <Link
+                      to="/setting"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200"
+                      onClick={() => setShowDropdown(false)}
+                    >
+                      Setting
                     </Link>
                     <button
                       onClick={handleLogout}

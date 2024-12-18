@@ -54,7 +54,7 @@ export function SignInForm() {
                 <div className="max-w-4xl w-full bg-white rounded-2xl shadow-xl overflow-hidden">
                     <div className="flex flex-col md:flex-row">
                         <div className="md:w-1/2 bg-green-600 p-12 text-white flex flex-col justify-center">
-                            <h2 className="text-4xl font-bold mb-6">Welcome to DevLog</h2>
+                            <h2 className="text-4xl font-bold mb-6">Welcome to Devslog</h2>
                             <p className="mb-8">Sign in to continue sharing your knowledge with our community!</p>
                             <div className="mb-8">
                                 <img

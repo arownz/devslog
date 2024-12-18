@@ -1,4 +1,4 @@
-import BlogCard from "./OOP/BlogCard";
+import BlogCard from "./post/PostCard";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import { Link } from 'react-router-dom';
@@ -69,7 +69,7 @@ export default function DevlogHome() {
             to="/signup" 
             className="inline-block bg-green-600 text-white font-bold py-3 px-7 rounded-full hover:bg-green-700 transition-colors duration-300 mb-3 mt-6"
           >
-            Start Blogging
+            Start Sharing Knowledge
           </Link>
         </section>
         <div className="flex flex-col lg:flex-row gap-5">

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, Route, Routes } from 'react-router-dom';
 import Header from '../Header';
 import Sidebar from '../Sidebar';
+import PropTypes from 'prop-types';
 
 export function UserDashboard() {
   const navigate = useNavigate();
@@ -28,12 +29,12 @@ return (
       <Header />
       <div className="flex flex-grow">
         <Sidebar isAdmin={false} />
-        <main className="flex-grow p-8 ml-64">
+        <main className="flex-grow p-8 ml-64 sm:ml-64">
           <Routes>
             <Route path="/" element={<UserDashboardHome user={user} handleLogout={handleLogout} />} />
             <Route path="/bookmarks" element={<Bookmarks />} />
             <Route path="/history" element={<ReadingHistory />} />
-            <Route path="/settings" element={<UserSettings />} />
+            {/*<Route path="/settings" element={<UserSettings />} /> */}
           </Routes>
         </main>
       </div>
@@ -41,7 +42,6 @@ return (
   );
 }
 
-import PropTypes from 'prop-types';
 function UserDashboardHome({ user, handleLogout }) {
   return (
     <>
@@ -71,9 +71,5 @@ function Bookmarks() {
 
 function ReadingHistory() {
   return <h2>Reading History</h2>;
-}
-
-function UserSettings() {
-  return <h2>User Settings</h2>;
 }
 

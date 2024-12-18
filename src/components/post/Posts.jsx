@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import BlogCard from "../OOP/BlogCard";
+import BlogCard from "./PostCard";
 import Header from "../Header";
 import Footer from "../Footer";
 
