@@ -78,12 +78,6 @@ export default function Blogs() {
     // Add more resources as needed
   ];
 
-  const handleLike = (postId) => {
-    setBlogPosts(posts => posts.map(post =>
-      post.id === postId ? { ...post, likes: post.likes + 1 } : post
-    ));
-  };
-
   const handleUpvote = (postId) => {
     setBlogPosts(posts => posts.map(post =>
       post.id === postId ? { ...post, upvotes: post.upvotes + 1 } : post
@@ -102,12 +96,7 @@ export default function Blogs() {
                 <div key={post.id} className="bg-white rounded-lg shadow-md overflow-hidden">
                   <BlogCard {...post} />
                   <div className="p-4 flex justify-between items-center border-t">
-                    <button onClick={() => handleLike(post.id)} className="flex items-center text-gray-600 hover:text-blue-500">
-                      <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path>
-                      </svg>
-                      {post.likes}
-                    </button>
+
                     <button onClick={() => handleUpvote(post.id)} className="flex items-center text-gray-600 hover:text-green-500">
                       <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7"></path>
