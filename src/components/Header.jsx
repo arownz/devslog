@@ -65,7 +65,7 @@ export default function Header() {
 
   return (
     <header className="bg-white shadow-sm sticky top-0 left-0 right-0 z-30">
-    <div className="container mx-auto px-0 py-5 flex items-center">
+      <div className="container mx-auto px-0 py-5 flex items-center">
         <Link to={getDashboardLink()} className="flex items-center text-2xl font-bold text-green-700 mr-8">
           <img
             src="https://cdn.builder.io/api/v1/image/assets/TEMP/1b7534d8e2e8aebb42d2c416dac3979c0a09e9a096b9a214a7d1e6af7326f39a?placeholderIfAbsent=true&apiKey=b3b06d4cff934296b9a04a1b4e7061de"
@@ -83,15 +83,6 @@ export default function Header() {
             <Link to="/about" className="text-gray-700 hover:text-green-700 transition-colors duration-200">About</Link>
           </nav>
         )}
-
-        {/* Admin Header 
-        {isLoggedIn && isAdmin && (
-          <nav className="flex space-x-6 text-lg">
-            <Link to="/post-management" className="text-gray-700 hover:text-green-700">Post Management</Link>
-            <Link to="/user-management" className="text-gray-700 hover:text-green-700">User Management</Link>
-            <Link to="/site-settings" className="text-gray-700 hover:text-green-700">Site Settings</Link>
-          </nav>
-        )}*/}
 
 
         {/* User Header */}
@@ -145,40 +136,35 @@ export default function Header() {
                   {/* Add notification badge here if needed */}
                 </button>
               )}
-              <div className="relative">
-                <button
-                  onClick={toggleDropdown}
-                  className="flex items-center space-x-2 text-gray-700 hover:text-green-700 transition-colors duration-200"
-                >
-                  <img
-                    src={user.avatar || "https://via.placeholder.com/40"}
-                    alt="User avatar"
-                    className="w-8 h-8 rounded-full"
-                  />
-                  <span>{user.name}</span>
+              <div className="relative ml-auto">
+                <button onClick={toggleDropdown} className="flex items-center space-x-2">
+                  {isAdmin ? (
+                    <span className="text-gray-700">{user.email}</span>
+                  ) : (
+                    <>
+                      <span className="text-gray-700">{user.username}</span>
+                      <img
+                        src={user.profile_image || "https://via.placeholder.com/40"}
+                        alt="User avatar"
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+                    </>
+                  )}
                 </button>
                 {showDropdown && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
-                    <Link
-                      to="/profile"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200"
-                      onClick={() => setShowDropdown(false)}
-                    >
-                      Profile
-                    </Link>
-                    <Link
-                      to="/setting"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200"
-                      onClick={() => setShowDropdown(false)}
-                    >
-                      Setting
-                    </Link>
-                    <button
-                      onClick={handleLogout}
-                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200"
-                    >
-                      Logout
-                    </button>
+                    {isAdmin ? (
+                      <>
+                        <Link to="/admin-profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</Link>
+                        <button onClick={handleLogout} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</button>
+                      </>
+                    ) : (
+                      <>
+                        <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</Link>
+                        <Link to="/settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</Link>
+                        <button onClick={handleLogout} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</button>
+                      </>
+                    )}
                   </div>
                 )}
               </div>
@@ -186,7 +172,7 @@ export default function Header() {
           ) : (
             <button
               onClick={handleSignInClick}
-              className="bg-green-600 text-white px-4 py-2 rounded-full font-semibold hover:bg-green-700 transition-colors duration-200"
+              className="bg-green-600 text-white px-4 py-2 rounded-full hover:bg-green-700 transition-colors duration-200"
             >
               Sign In
             </button>

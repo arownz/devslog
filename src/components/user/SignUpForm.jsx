@@ -10,10 +10,12 @@ export function SignUpForm() {
     email: "",
     password: "",
     confirmPassword: "",
+    profile_image: null,
   });
-  
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [imagePreview, setImagePreview] = useState(null);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -23,13 +25,21 @@ export function SignUpForm() {
       return;
     }
     try {
+      const formDataToSend = new FormData();
+      for (const key in formData) {
+        if (key === 'profile_image' && formData[key]) {
+          formDataToSend.append(key, formData[key]);
+        } else {
+          formDataToSend.append(key, formData[key]);
+        }
+      }
+      formDataToSend.append('action', 'register');
+
       const response = await fetch('http://localhost/devslog/server/user_auth.php', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ ...formData, action: 'register' }),
+        body: formDataToSend,
       });
+
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -47,9 +57,14 @@ export function SignUpForm() {
     }
   };
 
-
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (e.target.name === 'profile_image') {
+      const file = e.target.files[0];
+      setFormData({ ...formData, profile_image: file });
+      setImagePreview(URL.createObjectURL(file));
+    } else {
+      setFormData({ ...formData, [e.target.name]: e.target.value });
+    }
   };
 
   const togglePasswordVisibility = () => {
@@ -86,6 +101,29 @@ export function SignUpForm() {
             <div className="md:w-1/2 p-12">
               <h1 className="text-3xl font-bold text-gray-800 mb-8">Create an Account</h1>
               <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Profile Image Upload */}
+                <div className="flex flex-col items-center mb-6">
+                  <div className="w-32 h-32 rounded-full overflow-hidden bg-gray-200 mb-4">
+                    {imagePreview ? (
+                      <img src={imagePreview} alt="Profile Preview" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-500">
+                        No Image
+                      </div>
+                    )}
+                  </div>
+                  <label htmlFor="profile_image" className="cursor-pointer bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition duration-300">
+                    Choose Profile Picture
+                  </label>
+                  <input
+                    type="file"
+                    id="profile_image"
+                    name="profile_image"
+                    onChange={handleChange}
+                    className="hidden"
+                    accept="image/*"
+                  />
+                </div>
                 <div>
                   <label htmlFor="username" className="block text-sm font-medium text-gray-700">Username</label>
                   <input

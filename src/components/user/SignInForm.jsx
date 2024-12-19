@@ -26,7 +26,9 @@ export function SignInForm() {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const data = await response.json();
+        const text = await response.text(); // First, get the response as text
+        console.log("Raw response:", text); // Log the raw response
+        const data = JSON.parse(text); // Then parse it as JSON
         if (data.success) {
           localStorage.setItem('user', JSON.stringify(data.user));
           navigate('/user-dashboard');
@@ -38,6 +40,7 @@ export function SignInForm() {
         alert("An error occurred. Please try again.");
       }
     };
+
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });

@@ -24,7 +24,6 @@ const Sidebar = ({ isAdmin }) => {
       { icon: HomeIcon, text: 'My Feed', link: '/user-dashboard' },
       { icon: BookmarkIcon, text: 'Bookmarks', link: '/user-dashboard/bookmarks' },
       { icon: ClockIcon, text: 'Reading History', link: '/user-dashboard/history' },
-      { icon: Cog6ToothIcon, text: 'Settings', link: '/user-dashboard/settings' },
     ]},
   ];
 

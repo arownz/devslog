@@ -9,6 +9,4 @@ $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
-
-// Remove this line in production
-// echo "Connected successfully";
+echo "Connected successfully";
