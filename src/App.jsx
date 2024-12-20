@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import DevlogHome from './components/DevlogHome';
-import Blogs from './components/post/Posts';
+import Posts from './components/post/Posts';
 import About from './components/About';
 import { SignUpForm } from './components/user/SignUpForm';
 import { SignInForm } from './components/user/SignInForm';
@@ -14,7 +14,7 @@ function App() {
       <div className="App">
         <Routes>
           <Route path="/" element={<DevlogHome />} />
-          <Route path="/posts" element={<Blogs />} />
+          <Route path="/posts" element={<Posts />} />
           <Route path="/about" element={<About />} />
           <Route path="/signup" element={<SignUpForm />} />
           <Route path="/signin" element={<SignInForm />} />

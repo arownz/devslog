@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 
-BlogCard.propTypes = {
+PostCard.propTypes = {
   image: PropTypes.string.isRequired,
   tags: PropTypes.arrayOf(PropTypes.string),
   category: PropTypes.string.isRequired,
@@ -9,7 +9,7 @@ BlogCard.propTypes = {
   title: PropTypes.string.isRequired,
 };
 
-export default function BlogCard({ image, tags = [], category, time, author, title }) {
+export default function PostCard({ image, tags = [], category, time, author, title }) {
   return (
     <article className="bg-white rounded-lg shadow-md overflow-hidden">
       <img
@@ -31,7 +31,7 @@ export default function BlogCard({ image, tags = [], category, time, author, tit
         <p className="text-gray-600 text-sm mb-4">
           In <span className="text-green-700">{category}</span> - {time} by <span className="font-bold">{author}</span>
         </p>
-        <a href="#" className="text-green-600 font-semibold hover:underline">Read More</a>
+        <a href="#" className="text-green-600 font-semibold hover:underline">Read Post</a>
       </div>
     </article>
   );

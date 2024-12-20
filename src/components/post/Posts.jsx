@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import BlogCard from "./PostCard";
+import PostCard from "./PostCard";
 import Header from "../Header";
 import Footer from "../Footer";
 
-export default function Blogs() {
-  const [blogPosts, setBlogPosts] = useState([
+export default function Posts() {
+  const [forumPosts, setForumPosts] = useState([
     {
       id: 1,
       title: "10 Tips for Better React Performance",
@@ -59,27 +59,11 @@ export default function Blogs() {
       upvotes: 30
     },
     
-    // Add more blog posts as needed
+    // Add more forum static posts as needed
   ]);
 
-  const helpfulResources = [
-    {
-      title: "Wix Studio Templates",
-      description: "Sell your Studio templates in the Marketplace to earn hands-off income for your business.",
-      image: "https://designshack.net/wp-content/uploads/Elegant-Personal-Wix-Blog-Template-1024x881.jpg",
-      url: "https://www.wix.com/studio/templates"
-    },
-    {
-      title: "MDN Web Docs",
-      description: "Comprehensive resources for web developers",
-      image: "https://i.ytimg.com/vi/kdnlUDvqgQk/maxresdefault.jpg",
-      url: "https://developer.mozilla.org/"
-    },
-    // Add more resources as needed
-  ];
-
   const handleUpvote = (postId) => {
-    setBlogPosts(posts => posts.map(post =>
+    setForumPosts(posts => posts.map(post =>
       post.id === postId ? { ...post, upvotes: post.upvotes + 1 } : post
     ));
   };
@@ -90,11 +74,11 @@ export default function Blogs() {
       <main className="flex-grow container mx-auto px-4 py-8">
         <h1 className="text-4xl font-bold mb-8">All Forum Posts</h1>
         <div className="flex flex-col lg:flex-row gap-8">
-          <section className="w-full lg:w-2/3">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {blogPosts.map((post) => (
+          <section className="flex flex-col w-full lg:w-[100%]">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-5">
+              {forumPosts.map((post) => (
                 <div key={post.id} className="bg-white rounded-lg shadow-md overflow-hidden">
-                  <BlogCard {...post} />
+                  <PostCard {...post} />
                   <div className="p-4 flex justify-between items-center border-t">
 
                     <button onClick={() => handleUpvote(post.id)} className="flex items-center text-gray-600 hover:text-green-500">
@@ -103,7 +87,7 @@ export default function Blogs() {
                       </svg>
                       {post.upvotes}
                     </button>
-                    <Link to={`/blog/${post.id}`} className="flex items-center text-gray-600 hover:text-purple-500">
+                    <Link to={`/posts/${post.id}`} className="flex items-center text-gray-600 hover:text-purple-500">
                       <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
                       </svg>
@@ -114,26 +98,6 @@ export default function Blogs() {
               ))}
             </div>
           </section>
-          <aside className="w-full lg:w-1/3">
-            <h2 className="text-2xl font-bold mb-4">Helpful Resources</h2>
-            <div className="space-y-4">
-              {helpfulResources.map((resource, index) => (
-                <a
-                  key={index}
-                  href={resource.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
-                >
-                  <img src={resource.image} alt={resource.title} className="w-full h-40 object-cover" />
-                  <div className="p-4">
-                    <h3 className="text-xl font-semibold mb-2">{resource.title}</h3>
-                    <p className="text-gray-600">{resource.description}</p>
-                  </div>
-                </a>
-              ))}
-            </div>
-          </aside>
         </div>
       </main>
       <Footer />
