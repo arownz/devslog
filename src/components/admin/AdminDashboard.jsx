@@ -33,7 +33,7 @@ export function AdminDashboard() {
             <Route path="/" element={<AdminDashboardHome admin={admin} handleLogout={handleLogout} />} />
             <Route path="/posts" element={<PostManagement />} />
             <Route path="/users" element={<UserManagement />} />
-            <Route path="/settings" element={<SiteSettings />} />
+            <Route path="/site-settings" element={<SiteSettings />} />
           </Routes>
         </main>
       </div>

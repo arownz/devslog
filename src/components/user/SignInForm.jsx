@@ -12,8 +12,11 @@ export function SignInForm() {
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
 
+    const [error, setError] = useState("");
+
     const handleSubmit = async (e) => {
       e.preventDefault();
+      setError(""); // Clear any previous errors
       try {
         const response = await fetch('http://localhost/devslog/server/user_auth.php', {
           method: 'POST',
@@ -23,24 +26,29 @@ export function SignInForm() {
           body: JSON.stringify({ ...formData, action: 'login' }),
         });
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const text = await response.text(); // First, get the response as text
+        const text = await response.text(); // Get the raw response text
         console.log("Raw response:", text); // Log the raw response
-        const data = JSON.parse(text); // Then parse it as JSON
+
+        let data;
+        try {
+          data = JSON.parse(text); // Try to parse the response as JSON
+        } catch (error) {
+          console.error('Error parsing JSON:', error);
+          setError('Invalid response from server');
+          return;
+        }
+
         if (data.success) {
           localStorage.setItem('user', JSON.stringify(data.user));
           navigate('/user-dashboard');
         } else {
-          alert(data.message || "Login failed");
+          setError(data.message || "Login failed");
         }
       } catch (error) {
         console.error('Error:', error);
-        alert("An error occurred. Please try again.");
+        setError("An error occurred. Please try again.");
       }
     };
-
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -75,6 +83,7 @@ export function SignInForm() {
                         </div>
                         <div className="md:w-1/2 p-12">
                             <h1 className="text-3xl font-bold text-gray-800 mb-8">Sign In</h1>
+                            {error && <p className="text-red-500 mb-4">{error}</p>}
                             <form onSubmit={handleSubmit} className="space-y-6">
                                 <div>
                                     <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>

@@ -40,11 +40,20 @@ export function SignUpForm() {
         body: formDataToSend,
       });
 
-
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const data = await response.json();
+
+      const responseText = await response.text();
+      console.log('Raw server response:', responseText);
+
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (error) {
+        console.error('Error parsing JSON:', error);
+        throw new Error('Invalid JSON response from server');
+      }
       if (data.success) {
         alert("Registration successful! Please sign in.");
         navigate('/signin');
@@ -53,7 +62,7 @@ export function SignUpForm() {
       }
     } catch (error) {
       console.error('Error:', error);
-      alert("An error occurred. Please try again.");
+      alert(`An error occurred: ${error.message}. Please try again.`);
     }
   };
 

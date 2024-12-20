@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export default function Header() {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -8,6 +8,10 @@ export default function Header() {
   const [user, setUser] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const notificationRef = useRef(null);
   const navigate = useNavigate();
 
   const getDashboardLink = () => {
@@ -18,18 +22,69 @@ export default function Header() {
     }
     return '/';
   };
+
   useEffect(() => {
     const loggedInUser = localStorage.getItem('user');
     const loggedInAdmin = localStorage.getItem('admin');
     if (loggedInUser) {
+      const user = JSON.parse(loggedInUser);
       setIsLoggedIn(true);
-      setUser(JSON.parse(loggedInUser));
+      setUser(user);
+      // Set the correct path for the profile image
+      if (user.profile_image) {
+        setUser({
+          ...user,
+          profile_image: `http://localhost/devslog/uploads/${user.profile_image}`
+        });
+      }
     } else if (loggedInAdmin) {
       setIsLoggedIn(true);
       setIsAdmin(true);
       setUser(JSON.parse(loggedInAdmin));
     }
   }, []);
+
+  useEffect(() => {
+    // Simulating fetching notifications
+    const fetchNotifications = () => {
+      const mockNotifications = [
+        { id: 1, message: "Notify 1", read: false },
+        { id: 2, message: "Notify 2", read: false },
+        { id: 3, message: "Notify 3", read: true },
+      ];
+      setNotifications(mockNotifications);
+      setUnreadCount(mockNotifications.filter(n => !n.read).length);
+    };
+
+    if (isLoggedIn) {
+      fetchNotifications();
+    }
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+        setShowNotifications(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const toggleNotifications = () => {
+    setShowNotifications(!showNotifications);
+  };
+
+  const handleNotificationClick = (id) => {
+    // Mark notification as read
+    setNotifications(notifications.map(n => n.id === id ? { ...n, read: true } : n));
+    setUnreadCount(prev => prev - 1);
+    // Handle notification click (e.g., navigate to relevant page)
+    console.log(`Clicked notification ${id}`);
+  };
 
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
@@ -58,7 +113,6 @@ export default function Header() {
     setShowDropdown(false);
   };
 
-
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
   };
@@ -75,7 +129,6 @@ export default function Header() {
           DEVSLOG
         </Link>
 
-
         {/* Guest Header */}
         {!isLoggedIn && (
           <nav className="flex space-x-6 text-lg">
@@ -83,7 +136,6 @@ export default function Header() {
             <Link to="/about" className="text-gray-700 hover:text-green-700 transition-colors duration-200">About</Link>
           </nav>
         )}
-
 
         {/* User Header */}
         {isLoggedIn && !isAdmin && (
@@ -126,49 +178,88 @@ export default function Header() {
             )}
           </button>
 
-          {isLoggedIn ? (
-            <>
-              {!isAdmin && (
-                <button className="relative p-2 text-gray-700 hover:text-green-700 transition-colors duration-200">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                  </svg>
-                  {/* Add notification badge here if needed */}
-                </button>
+          {/* New Notification Icon Button */}
+          {isLoggedIn && (
+            <div className="relative" ref={notificationRef}>
+              <button
+                onClick={toggleNotifications}
+                className="p-2 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors duration-200 relative"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+                {unreadCount > 0 && (
+                  <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+              {showNotifications && (
+                <div className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg overflow-hidden z-20">
+                  <div className="py-2">
+                    {notifications.map((notification) => (
+                      <div
+                        key={notification.id}
+                        className={`px-4 py-3 hover:bg-gray-100 cursor-pointer ${!notification.read ? 'bg-blue-50' : ''}`}
+                        onClick={() => handleNotificationClick(notification.id)}
+                      >
+                        <p className={`text-sm ${!notification.read ? 'font-semibold' : ''}`}>
+                          {notification.message}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               )}
-              <div className="relative ml-auto">
-                <button onClick={toggleDropdown} className="flex items-center space-x-2">
+            </div>
+          )}
+          {isLoggedIn ? (
+            <div className="relative">
+              <button onClick={toggleDropdown} className="flex items-center space-x-2">
+                {isAdmin ? (
+                  <>
+                    <span className="text-gray-700">{user ? user.email : 'Admin'}</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                  </>
+                ) : (
+
+                  <>
+                    {user && user.profile_image ? (
+                      <img
+                        src={user.profile_image}
+                        alt="Profile"
+                        className="h-10 w-10 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center">
+                        <span className="text-gray-600 font-medium">
+                          {user && user.username ? user.username[0].toUpperCase() : 'U'}
+                        </span>
+                      </div>
+                    )}
+                    <span className="text-gray-700">{user ? user.username : 'User'}</span>
+                  </>
+                )}
+              </button>
+              {showDropdown && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1">
                   {isAdmin ? (
-                    <span className="text-gray-700">{user.email}</span>
+                    <>
+                      <Link to="/admin-profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</Link>
+                      <button onClick={handleLogout} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</button>
+                    </>
                   ) : (
                     <>
-                      <span className="text-gray-700">{user.username}</span>
-                      <img
-                        src={user.profile_image || "https://via.placeholder.com/40"}
-                        alt="User avatar"
-                        className="w-10 h-10 rounded-full object-cover"
-                      />
+                      <Link to="/user-profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</Link>
+                      <Link to="/user-settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</Link>
+                      <button onClick={handleLogout} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</button>
                     </>
                   )}
-                </button>
-                {showDropdown && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
-                    {isAdmin ? (
-                      <>
-                        <Link to="/admin-profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</Link>
-                        <button onClick={handleLogout} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</button>
-                      </>
-                    ) : (
-                      <>
-                        <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</Link>
-                        <Link to="/settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</Link>
-                        <button onClick={handleLogout} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</button>
-                      </>
-                    )}
-                  </div>
-                )}
-              </div>
-            </>
+                </div>
+              )}
+            </div>
           ) : (
             <button
               onClick={handleSignInClick}
@@ -177,9 +268,9 @@ export default function Header() {
               Sign In
             </button>
           )}
+
         </div>
       </div>
-
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-8 rounded-lg shadow-xl max-w-md w-full transform transition-all duration-300 ease-in-out">
@@ -212,3 +303,4 @@ export default function Header() {
     </header>
   );
 }
+

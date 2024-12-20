@@ -33,7 +33,7 @@ export default function Blogs() {
       upvotes: 30
     },
     {
-      id: 2,
+      id: 3,
       title: "Getting Started with React",
       author: "John Smith",
       date: "2023-05-10",
@@ -46,7 +46,7 @@ export default function Blogs() {
       upvotes: 30
     },
     {
-      id: 2,
+      id: 4,
       title: "Getting Started with React",
       author: "John Smith",
       date: "2023-05-10",
