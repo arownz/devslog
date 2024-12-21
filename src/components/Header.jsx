@@ -239,7 +239,7 @@ export default function Header() {
                           className="h-10 w-10 rounded-full object-cover"
                         />
                       ) : (
-                        <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center">
+                        <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
                           <span className="text-gray-600 font-medium">
                             {user && user.username ? user.username[0].toUpperCase() : 'Profile Image'}
                           </span>
