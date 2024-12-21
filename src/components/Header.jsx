@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
+import AddPost from "./post/AddPost";
 
 export default function Header() {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -11,6 +12,7 @@ export default function Header() {
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [showAddPostModal, setShowAddPostModal] = useState(false);
   const notificationRef = useRef(null);
   const navigate = useNavigate();
 
@@ -124,7 +126,7 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 left-0 right-0 z-30">
+    <header className="bg-white shadow-md sticky top-0 left-0 right-0 z-30">
       <div className="container mx-auto px-0 py-5 flex items-center">
         <Link to={getDashboardLink()} className="flex items-center text-2xl font-bold text-green-700 mr-8">
           <img
@@ -146,11 +148,14 @@ export default function Header() {
         {/* User Header */}
         {isLoggedIn && !isAdmin && (
           <nav className="flex space-x-6 text-lg">
-            <button className="text-gray-700 hover:text-green-700 transition-colors duration-200 flex items-center">
+            <button
+              onClick={() => setShowAddPostModal(true)}
+              className="bg-green-500 hover:bg-green-600 text-white font-bold py-1 px-4 rounded hover:text-green-100 transition-colors duration-200 flex items-center"
+            >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
-              New Post
+              Add Post
             </button>
           </nav>
         )}
@@ -308,7 +313,11 @@ export default function Header() {
           </div>
         </div>
       )}
+      {showAddPostModal && (
+        <AddPost onClose={() => setShowAddPostModal(false)} />
+      )}
     </header>
   );
 }
+
 

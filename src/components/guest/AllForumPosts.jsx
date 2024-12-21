@@ -1,21 +1,18 @@
-import PostCard from "./post/PostCard";
-import Footer from "../components/Footer";
-import Header from "../components/Header";
-import { Link } from 'react-router-dom';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import PostCard from "../post/PostCard";
+import Header from "../Header";
+import Footer from "../Footer";
 
-export default function DevlogHome() {
-  // Sample data for featured blog posts
-  const [featuredPosts, setFeaturedPosts] = useState([
+export default function AllForumPosts() {
+  const [forumPosts, setForumPosts] = useState([
     {
       id: 1,
       title: "10 Tips for Better React Performance",
       author: "Jane Doe",
       date: "2023-05-15",
       image: "https://th.bing.com/th?id=OIP.wqvuIBBlb9K6ULYuu31EEwHaDt&w=312&h=200&c=12&rs=1&qlt=99&o=6&dpr=1.3&pid=23.1",
-      tags: ["React", "Performance"],
-      category: "Frontend",
-      time: "5 min read",
+      time: "5 mins ago",
       likes: 15,
       comments: 3,
       upvotes: 25
@@ -26,45 +23,17 @@ export default function DevlogHome() {
       author: "John Smith",
       date: "2023-05-10",
       image: "https://th.bing.com/th?id=OIP.ORYCDafreIYhtQfCY0B0NAHaFg&w=312&h=200&c=12&rs=1&o=6&dpr=1.3&pid=23.1",
-      tags: ["TypeScript", "JavaScript"],
-      category: "Programming",
-      time: "8 min read",
+      time: "8 hrs ago",
       likes: 20,
       comments: 5,
       upvotes: 30
-    },
-    {
-      id: 3,
-      title: "Getting Started with React",
-      author: "John Smith",
-      date: "2023-05-10",
-      image: "https://th.bing.com/th?id=OIP.ORYCDafreIYhtQfCY0B0NAHaFg&w=312&h=200&c=12&rs=1&o=6&dpr=1.3&pid=23.1",
-      tags: ["TypeScript", "JavaScript"],
-      category: "Programming",
-      time: "8 min read",
-      likes: 20,
-      comments: 5,
-      upvotes: 30
-    },
-    {
-      id: 4,
-      title: "Getting Started with React",
-      author: "John Smith",
-      date: "2023-05-10",
-      image: "https://th.bing.com/th?id=OIP.ORYCDafreIYhtQfCY0B0NAHaFg&w=312&h=200&c=12&rs=1&o=6&dpr=1.3&pid=23.1",
-      tags: ["TypeScript", "JavaScript"],
-      category: "Programming",
-      time: "8 min read",
-      likes: 20,
-      comments: 5,
-      upvotes: 30
-    },
+    }, 
 
     // Add more forum static posts as needed
   ]);
 
   const handleUpvote = (postId) => {
-    setFeaturedPosts(posts => posts.map(post =>
+    setForumPosts(posts => posts.map(post =>
       post.id === postId ? { ...post, upvotes: post.upvotes + 1 } : post
     ));
   };
@@ -73,22 +42,11 @@ export default function DevlogHome() {
     <div className="flex flex-col min-h-screen bg-white">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
-        <section className="mb-12">
-          <h1 className="text-4xl font-bold mb-4">Featured Forum Posts</h1>
-          <p className="text-xl text-gray-600">
-            Browse through all developers articles, tutorials, resources, and more!
-          </p>
-          <Link
-            to="/signup"
-            className="inline-block bg-green-600 text-white font-bold py-3 px-7 rounded-full hover:bg-green-700 transition-colors duration-300 mb-3 mt-6"
-          >
-            Start Sharing Knowledge
-          </Link>
-        </section>
+        <h1 className="text-4xl font-bold mb-8">All Forum Posts</h1>
         <div className="flex flex-col lg:flex-row gap-8">
           <section className="flex flex-col w-full lg:w-[100%]">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              {featuredPosts.map((post) => (
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-5">
+              {forumPosts.map((post) => (
                 <div key={post.id} className="bg-white rounded-lg shadow-md overflow-hidden">
                   <PostCard {...post} />
                   <div className="p-4 flex justify-between items-center border-t">

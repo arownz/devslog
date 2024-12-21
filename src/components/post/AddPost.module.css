@@ -1,0 +1,11 @@
+.resizeEditor {
+    resize: vertical;
+    overflow: auto;
+    min-height: 200px;
+    height: 300px;
+    max-height: 600px;
+}
+
+.resizeEditor :global(.ql-container) {
+    height: calc(100% - 42px) !important;
+}

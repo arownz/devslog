@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import DevlogHome from './components/DevlogHome';
-import Posts from './components/post/Posts';
-import About from './components/About';
+import DevlogHome from './components/guest/DevlogHome';
+import Posts from './components/guest/AllForumPosts';
+import About from './components/guest/About';
 import { SignUpForm } from './components/user/SignUpForm';
 import { SignInForm } from './components/user/SignInForm';
 import { UserDashboard } from './components/user/UserDashboard';
