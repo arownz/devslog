@@ -32,7 +32,7 @@ export function AdminSignIn() {
       const data = await response.json();
       console.log('Response:', data);
       if (data.success) {
-        localStorage.setItem('admin', JSON.stringify(data.admin));
+        sessionStorage.setItem('admin', JSON.stringify(data.admin));
         navigate('/admin-dashboard');
       } else {
         setError(data.message || "Login failed");

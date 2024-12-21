@@ -30,27 +30,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $email = $conn->real_escape_string($decoded['email']);
             $password = password_hash($decoded['password'], PASSWORD_DEFAULT);
 
-            // Handle profile image upload
+            // Handle profile image as base64
             $profile_image = null;
-            if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === UPLOAD_ERR_OK) {
-                $upload_dir = '../uploads/';
-                $image_name = uniqid() . '_' . basename($_FILES['profile_image']['name']);
-                $upload_file = $upload_dir . $image_name;
-
-                if (move_uploaded_file($_FILES['profile_image']['tmp_name'], $upload_file)) {
-                    $profile_image = $image_name;
-                } else {
-                    echo json_encode(["success" => false, "message" => "Failed to upload image"]);
-                    exit;
-                }
+            if (isset($decoded['profile_image']) && !empty($decoded['profile_image'])) {
+                $profile_image = $decoded['profile_image'];
             }
 
-            $sql = "INSERT INTO usertblaccounts (username, email, password, profile_image) VALUES ('$username', '$email', '$password', '$profile_image')";
-            if ($conn->query($sql) === TRUE) {
+            $sql = "INSERT INTO usertblaccounts (username, email, password, profile_image) VALUES (?, ?, ?, ?)";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("ssss", $username, $email, $password, $profile_image);
+
+            if ($stmt->execute()) {
                 echo json_encode(["success" => true, "message" => "User registered successfully"]);
             } else {
-                echo json_encode(["success" => false, "message" => "Error: " . $conn->error]);
+                echo json_encode(["success" => false, "message" => "Error: " . $stmt->error]);
             }
+            $stmt->close();
         } elseif ($action === 'login') {
             $email = $conn->real_escape_string($decoded['email']);
             $password = $decoded['password'];

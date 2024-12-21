@@ -25,18 +25,24 @@ export default function Header() {
 
   useEffect(() => {
     const loggedInUser = localStorage.getItem('user');
-    const loggedInAdmin = localStorage.getItem('admin');
+    console.log('Logged in user data: ', loggedInUser);
+    const loggedInAdmin = sessionStorage.getItem('admin');
+    console.log('Logged in admin data: ', loggedInAdmin);
     if (loggedInUser) {
       const user = JSON.parse(loggedInUser);
       setIsLoggedIn(true);
       setUser(user);
-      // Set the correct path for the profile image
-      if (user.profile_image) {
+      if (user.profile_image && user.profile_image.startsWith('data:image')) {
+        setUser({
+          ...user,
+          profile_image: user.profile_image
+        });
+      } /* else if (user.profile_image) { // If it's not base64, assume it's a filename and construct the URL
         setUser({
           ...user,
           profile_image: `http://localhost/devslog/uploads/${user.profile_image}`
         });
-      }
+      } */
     } else if (loggedInAdmin) {
       setIsLoggedIn(true);
       setIsAdmin(true);
@@ -101,7 +107,7 @@ export default function Header() {
 
   const handleLogout = () => {
     if (isAdmin) {
-      localStorage.removeItem('admin');
+      sessionStorage.removeItem('admin');
       navigate('/admin-signin');
     } else {
       localStorage.removeItem('user');
@@ -215,7 +221,7 @@ export default function Header() {
           )}
           {isLoggedIn ? (
             <div className="relative">
-              <button onClick={toggleDropdown} className="flex items-center space-x-2">
+              <button onClick={toggleDropdown} className="flex items-center space-x-2 focus:outline-none">
                 {isAdmin ? (
                   <>
                     <span className="text-gray-700">{user ? user.email : 'Admin'}</span>
@@ -224,21 +230,22 @@ export default function Header() {
                     </svg>
                   </>
                 ) : (
-
                   <>
-                    {user && user.profile_image ? (
-                      <img
-                        src={user.profile_image}
-                        alt="Profile"
-                        className="h-10 w-10 rounded-full object-cover"
-                      />
-                    ) : (
-                      <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center">
-                        <span className="text-gray-600 font-medium">
-                          {user && user.username ? user.username[0].toUpperCase() : 'U'}
-                        </span>
-                      </div>
-                    )}
+                    <div className="w-10 h-10 rounded-full overflow-hidden">
+                      {user && user.profile_image ? (
+                        <img
+                          src={user.profile_image}
+                          alt="Profile"
+                          className="h-10 w-10 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center">
+                          <span className="text-gray-600 font-medium">
+                            {user && user.username ? user.username[0].toUpperCase() : 'Profile Image'}
+                          </span>
+                        </div>
+                      )}
+                    </div>
                     <span className="text-gray-700">{user ? user.username : 'User'}</span>
                   </>
                 )}
@@ -260,6 +267,7 @@ export default function Header() {
                 </div>
               )}
             </div>
+
           ) : (
             <button
               onClick={handleSignInClick}

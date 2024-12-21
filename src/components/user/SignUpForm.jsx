@@ -25,35 +25,25 @@ export function SignUpForm() {
       return;
     }
     try {
-      const formDataToSend = new FormData();
-      for (const key in formData) {
-        if (key === 'profile_image' && formData[key]) {
-          formDataToSend.append(key, formData[key]);
-        } else {
-          formDataToSend.append(key, formData[key]);
-        }
-      }
-      formDataToSend.append('action', 'register');
+      const dataToSend = {
+        ...formData,
+        action: 'register'
+      };
+      delete dataToSend.confirmPassword;
 
       const response = await fetch('http://localhost/devslog/server/user_auth.php', {
         method: 'POST',
-        body: formDataToSend,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(dataToSend),
       });
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const responseText = await response.text();
-      console.log('Raw server response:', responseText);
-
-      let data;
-      try {
-        data = JSON.parse(responseText);
-      } catch (error) {
-        console.error('Error parsing JSON:', error);
-        throw new Error('Invalid JSON response from server');
-      }
+      const data = await response.json();
       if (data.success) {
         alert("Registration successful! Please sign in.");
         navigate('/signin');
@@ -69,12 +59,17 @@ export function SignUpForm() {
   const handleChange = (e) => {
     if (e.target.name === 'profile_image') {
       const file = e.target.files[0];
-      setFormData({ ...formData, profile_image: file });
-      setImagePreview(URL.createObjectURL(file));
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData({ ...formData, profile_image: reader.result });
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
     } else {
       setFormData({ ...formData, [e.target.name]: e.target.value });
     }
   };
+
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);

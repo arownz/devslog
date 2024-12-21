@@ -9,7 +9,7 @@ export function AdminDashboard() {
   const [admin, setAdmin] = useState(null);
 
   useEffect(() => {
-    const loggedInAdmin = localStorage.getItem('admin');
+    const loggedInAdmin = sessionStorage.getItem('admin');
     if (loggedInAdmin) {
       setAdmin(JSON.parse(loggedInAdmin));
     } else {
@@ -18,7 +18,7 @@ export function AdminDashboard() {
   }, [navigate]);
 
   const handleLogout = () => {
-    localStorage.removeItem('admin');
+    sessionStorage.removeItem('admin');
     navigate('/admin-signin');
   };
 
