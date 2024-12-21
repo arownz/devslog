@@ -6,7 +6,7 @@ ini_set('log_errors', 1);
 ini_set('error_log', 'C:/xampp/htdocs/devslog/server/php_errors.log');
 
 // CORS headers
-header("Access-Control-Allow-Origin: http://localhost:5174");
+header("Access-Control-Allow-Origin: http://localhost:5173");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Credentials: true");
@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 echo json_encode(["success" => false, "message" => "Invalid password"]);
             }
         } else {
-            error_log("Email not found: $email");
+            error_log(message: "Email not found: $email");
             echo json_encode(["success" => false, "message" => "Email not found"]);
         }
     } else {
