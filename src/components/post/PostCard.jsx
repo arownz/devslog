@@ -16,9 +16,10 @@ PostCard.propTypes = {
   onDownvote: PropTypes.func.isRequired,
   onBookmark: PropTypes.func.isRequired,
   isBookmarked: PropTypes.bool.isRequired,
+  layout: PropTypes.oneOf(['grid', 'vertical']).isRequired,
 };
 
-export default function PostCard({ id, image, time, author, title, upvotes, downvotes, comments, isLoggedIn, onUpvote, onDownvote, onBookmark, isBookmarked }) {
+export default function PostCard({ id, image, time, author, title, upvotes, downvotes, comments, isLoggedIn, onUpvote, onDownvote, onBookmark, isBookmarked, layout }) {
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   const handleAction = (action) => {
@@ -28,14 +29,26 @@ export default function PostCard({ id, image, time, author, title, upvotes, down
       setShowLoginPrompt(true);
     }
   };
+
+  const cardClass = layout === 'grid' 
+    ? "bg-white rounded-lg shadow-md overflow-hidden"
+    : "bg-white rounded-lg shadow-md overflow-hidden flex mb-4";
+
+  const imageClass = layout === 'grid'
+    ? "w-full h-48 object-cover"
+    : "w-1/4 h-auto object-cover";
+
+  const contentClass = layout === 'grid'
+    ? "p-6"
+    : "p-6 w-3/4";
   return (
-    <article className="bg-white rounded-lg shadow-md overflow-hidden">
+    <article className={cardClass}>
       <img
         src={image || "https://placehold.co/600x400"}
-        className="w-full h-48 object-cover"
+        className={imageClass}
         alt={title}
       />
-      <div className="p-6">
+      <div className={contentClass}>
         <h2 className="text-xl font-semibold mb-2">{title}</h2>
         <p className="text-gray-600 text-sm mb-4">
           <span className="text-green-700">{time}</span> by <span className="font-bold">{author}</span>

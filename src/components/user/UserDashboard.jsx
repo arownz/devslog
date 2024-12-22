@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, Route, Routes } from 'react-router-dom';
 import Header from '../Header';
 import Sidebar from '../Sidebar';
 import PropTypes from 'prop-types';
+import PostCard from '../post/PostCard' // Adjust the import path as necessary
 
 export function UserDashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -17,18 +17,38 @@ export function UserDashboard() {
     ]);
   }, []);
 
-return (
+  const handleUpvote = (id) => {
+    // Handle upvote logic
+  };
+
+  const handleDownvote = (id) => {
+    // Handle downvote logic
+  };
+
+  const handleBookmark = (id) => {
+    // Handle bookmark logic
+  };
+
+  return (
     <div className="flex flex-col min-h-screen">
       <Header />
       <div className="flex flex-grow">
         <Sidebar isAdmin={false} setIsSidebarOpen={setIsSidebarOpen} />
         <main className={`flex-grow p-8 transition-all duration-300 ${isSidebarOpen ? 'ml-64' : 'ml-16'}`}>
-          <Routes>
-            <Route path="/" element={<UserDashboardHome user={user} handleLogout={handleLogout} />} />
-            <Route path="/bookmarks" element={<Bookmarks />} />
-            <Route path="/history" element={<ReadingHistory />} />
-            {/*<Route path="/settings" element={<UserSettings />} /> */}
-          </Routes>
+          <h1 className="text-3xl font-bold mb-6">Your Posts</h1>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+            {posts.map((post) => (
+              <PostCard
+                key={post.id}
+                {...post}
+                isLoggedIn={true}
+                onUpvote={() => handleUpvote(post.id)}
+                onDownvote={() => handleDownvote(post.id)}
+                onBookmark={() => handleBookmark(post.id)}
+                layout="grid"
+              />
+            ))}
+          </div>
         </main>
       </div>
     </div>
@@ -38,6 +58,7 @@ return (
 function UserDashboardHome({ user, handleLogout }) {
   return (
     <>
+    {/* Remove this because this is temporary */}
       <h1 className="text-3x10 font-bold mb-4">Welcome, {user.username}!</h1>
       <p className="mb-4">Email: {user.email}</p>
       <button
@@ -57,12 +78,4 @@ UserDashboardHome.propTypes = {
   }).isRequired,
   handleLogout: PropTypes.func.isRequired,
 };
-
-function Bookmarks() {
-  return <h2>Bookmarks</h2>;
-}
-
-function ReadingHistory() {
-  return <h2>Reading History</h2>;
-}
 

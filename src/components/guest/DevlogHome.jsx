@@ -8,19 +8,37 @@ export default function DevlogHome() {
   const [featuredPosts, setFeaturedPosts] = useState([]);
 
   useEffect(() => {
-    // Fetch featured posts from the server
+    // Fetch featured posts from the XAMPP database
     // For now, we'll use dummy data
-    setFeaturedPosts(
-      [
-      { id: 1, title: "10 Tips for Better React Performance", author: "Jane Doe", time: "8 mins ago", image: "https://placehold.co/600x400", upvotes: 25, downvotes: 2, comments: 3, isBookmarked: false },
-      
-      [{ id: 2, title: "10 Tips for Better React Performance", author: "Jane Doe", time: "8 mins ago", image: "https://placehold.co/600x400", upvotes: 25, downvotes: 2, comments: 3, isBookmarked: false },
-          ]
+    setFeaturedPosts([
+      {
+        id: 1,
+        title: "10 Tips for Better React Performance",
+        author: "Jane Doe",
+        time: "5 mins ago",
+        image: "https://th.bing.com/th?id=OIP.wqvuIBBlb9K6ULYuu31EEwHaDt&w=312&h=200&c=12&rs=1&qlt=99&o=6&dpr=1.3&pid=23.1",
+        upvotes: 25,
+        downvotes: 2,
+        comments: 3,
+        isBookmarked: false
+      },
+      {
+        id: 2,
+        title: "10 Tips for Better React Performance",
+        author: "Jane Doe",
+        time: "5 mins ago",
+        image: "https://th.bing.com/th?id=OIP.wqvuIBBlb9K6ULYuu31EEwHaDt&w=312&h=200&c=12&rs=1&qlt=99&o=6&dpr=1.3&pid=23.1",
+        upvotes: 25,
+        downvotes: 2,
+        comments: 3,
+        isBookmarked: false
+      },
+      // ... more posts ...
     ]);
   }, []);
 
   return (
-    <div className="flex flex-col min-h-screen bg-white">
+    <div className="flex flex-col min-h-screen bg-gray-100">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
         <section className="mb-12">
@@ -35,7 +53,7 @@ export default function DevlogHome() {
             Start Sharing Knowledge
           </Link>
         </section>
-        <div className="flex flex-col gap-8">
+        <div className="space-y-6">
           {featuredPosts.map((post) => (
             <PostCard
               key={post.id}
