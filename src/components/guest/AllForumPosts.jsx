@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import PostCard from "../post/PostCard";
 import Header from "../Header";
 import Footer from "../Footer";

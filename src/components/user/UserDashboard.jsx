@@ -58,7 +58,7 @@ export function UserDashboard() {
 function UserDashboardHome({ user, handleLogout }) {
   return (
     <>
-    {/* Remove this because this is temporary */}
+      {/* Remove this because this is temporary */}
       <h1 className="text-3x10 font-bold mb-4">Welcome, {user.username}!</h1>
       <p className="mb-4">Email: {user.email}</p>
       <button

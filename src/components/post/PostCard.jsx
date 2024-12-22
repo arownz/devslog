@@ -30,7 +30,7 @@ export default function PostCard({ id, image, time, author, title, upvotes, down
     }
   };
 
-  const cardClass = layout === 'grid' 
+  const cardClass = layout === 'grid'
     ? "bg-white rounded-lg shadow-md overflow-hidden"
     : "bg-white rounded-lg shadow-md overflow-hidden flex mb-4";
 
