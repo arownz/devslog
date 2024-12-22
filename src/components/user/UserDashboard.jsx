@@ -5,25 +5,17 @@ import Sidebar from '../Sidebar';
 import PropTypes from 'prop-types';
 
 export function UserDashboard() {
-  const navigate = useNavigate();
-  const [user, setUser] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [posts, setPosts] = useState([]);
 
   useEffect(() => {
-    const loggedInUser = localStorage.getItem('user');
-    if (loggedInUser) {
-      setUser(JSON.parse(loggedInUser));
-    } else {
-      navigate('/signin');
-    }
-  }, [navigate]);
-
-  const handleLogout = () => {
-    localStorage.removeItem('user');
-    navigate('/signin');
-  };
-
-  if (!user) return null;
+    // Fetch user's posts from the server
+    // For now, we'll use dummy data
+    setPosts([
+      { id: 1, title: "My First Post", author: "User", time: "2 hours ago", image: "https://placehold.co/600x400", upvotes: 10, downvotes: 2, comments: 5, isBookmarked: false },
+      // ... more posts ...
+    ]);
+  }, []);
 
 return (
     <div className="flex flex-col min-h-screen">
