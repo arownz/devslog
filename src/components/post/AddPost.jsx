@@ -10,11 +10,29 @@ export default function AddPost({ onClose }) {
     const [content, setContent] = useState('');
     const [thumbnail, setThumbnail] = useState(null);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Here you would typically send the data to your backend
-        console.log({ title, content, thumbnail });
-        onClose();
+
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('content', content);
+        formData.append('thumbnail', thumbnail);
+
+        try {
+            const response = await fetch('http://localhost/devslog/server/create_post.php', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (response.ok) {
+                console.log('Post created successfully');
+                onClose();
+            } else {
+                console.error('Failed to create post');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
     };
 
     return (

@@ -1,15 +1,14 @@
 import { useEffect, useState } from 'react';
 import Header from '../Header';
 import Sidebar from '../Sidebar';
-import PropTypes from 'prop-types';
-import PostCard from '../post/PostCard' // Adjust the import path as necessary
+import PostCard from '../post/PostCard';
 
 export function UserDashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
-    // Fetch user's posts from the server
+    // Fetch user's posts from the database
     // For now, we'll use dummy data
     setPosts([
       { id: 1, title: "My First Post", author: "User", time: "2 hours ago", image: "https://placehold.co/600x400", upvotes: 10, downvotes: 2, comments: 5, isBookmarked: false },
@@ -17,15 +16,15 @@ export function UserDashboard() {
     ]);
   }, []);
 
-  const handleUpvote = (id) => {
+  const handleUpvote = () => {
     // Handle upvote logic
   };
 
-  const handleDownvote = (id) => {
+  const handleDownvote = () => {
     // Handle downvote logic
   };
 
-  const handleBookmark = (id) => {
+  const handleBookmark = () => {
     // Handle bookmark logic
   };
 
@@ -54,28 +53,4 @@ export function UserDashboard() {
     </div>
   );
 }
-
-function UserDashboardHome({ user, handleLogout }) {
-  return (
-    <>
-      {/* Remove this because this is temporary */}
-      <h1 className="text-3x10 font-bold mb-4">Welcome, {user.username}!</h1>
-      <p className="mb-4">Email: {user.email}</p>
-      <button
-        onClick={handleLogout}
-        className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-      >
-        Logout
-      </button>
-    </>
-  );
-}
-
-UserDashboardHome.propTypes = {
-  user: PropTypes.shape({
-    username: PropTypes.string.isRequired,
-    email: PropTypes.string.isRequired,
-  }).isRequired,
-  handleLogout: PropTypes.func.isRequired,
-};
 

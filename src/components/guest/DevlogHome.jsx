@@ -22,19 +22,8 @@ export default function DevlogHome() {
         comments: 3,
         isBookmarked: false
       },
-      {
-        id: 2,
-        title: "10 Tips for Better React Performance",
-        author: "Jane Doe",
-        time: "5 mins ago",
-        image: "https://th.bing.com/th?id=OIP.wqvuIBBlb9K6ULYuu31EEwHaDt&w=312&h=200&c=12&rs=1&qlt=99&o=6&dpr=1.3&pid=23.1",
-        upvotes: 25,
-        downvotes: 2,
-        comments: 3,
-        isBookmarked: false
-      },
       // ... more posts ...
-    ]);
+    ].slice(0, 5)); // Limit to 5 posts
   }, []);
 
   return (
@@ -61,7 +50,8 @@ export default function DevlogHome() {
               isLoggedIn={false}
               onUpvote={() => { }}
               onDownvote={() => { }}
-              onBookmark={() => { }}
+              onBookmark={() => {}}
+              layout="vertical"
             />
           ))}
         </div>
