@@ -12,7 +12,7 @@ export default function PostDetails({ postId, onClose }) {
         // Fetch post details and comments from the server
         async function fetchPostDetails() {
             try {
-                const response = await fetch(`/api/posts/${postId}`);
+                const response = await fetch('http://localhost/devslog/server/get_user_posts.php'); // Ensure this endpoint exists
                 const data = await response.json();
                 setPost(data.post);
                 setComments(data.comments);

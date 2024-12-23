@@ -8,12 +8,17 @@ export function UserDashboard() {
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
-    // Fetch user's posts from the database
-    // For now, we'll use dummy data
-    setPosts([
-      { id: 1, title: "My First Post", author: "User", time: "2 hours ago", image: "https://placehold.co/600x400", upvotes: 10, downvotes: 2, comments: 5, isBookmarked: false },
-      // ... more posts ...
-    ]);
+    async function fetchPosts() {
+      try {
+        const response = await fetch('http://localhost/devslog/server/get_user_posts.php'); // Ensure this endpoint exists
+        const data = await response.json();
+        setPosts(data.posts);
+      } catch (error) {
+        console.error('Error fetching posts:', error);
+      }
+    }
+
+    fetchPosts();
   }, []);
 
   const handleUpvote = (id) => {

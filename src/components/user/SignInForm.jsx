@@ -39,7 +39,7 @@ export function SignInForm() {
         }
 
         if (data.success) {
-          localStorage.setItem('user', JSON.stringify(data.user));
+          sessionStorage.setItem('user', JSON.stringify(data.user));
           navigate('/user-dashboard');
         } else {
           setError(data.message || "Login failed");

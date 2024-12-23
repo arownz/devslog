@@ -3,15 +3,16 @@ header("Access-Control-Allow-Origin: http://localhost:5173");
 header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Allow-Headers: Content-Type");
 
-// CORS headers
 require 'config.php';
 
+session_start(); // Start the session to access session variables
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $title = $_POST['title'];
     $content = $_POST['content'];
     $thumbnail = $_FILES['thumbnail']['name'];
-    $user_id = 1; // Replace with actual user ID from session or authentication
 
+    // Retrieve user_id from session
+    $user_id = $_SESSION['user_id']; // Ensure this session variable is set during login
     // Move uploaded file to a directory
     $target_dir = "uploads/";
     $target_file = $target_dir . basename($_FILES["thumbnail"]["name"]);

@@ -112,7 +112,7 @@ export default function Header() {
       sessionStorage.removeItem('admin');
       navigate('/admin-signin');
     } else {
-      localStorage.removeItem('user');
+      sessionStorage.removeItem('user');
       navigate('/signin');
     }
     setIsLoggedIn(false);
