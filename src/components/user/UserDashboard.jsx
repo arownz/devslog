@@ -16,15 +16,15 @@ export function UserDashboard() {
     ]);
   }, []);
 
-  const handleUpvote = () => {
+  const handleUpvote = (id) => {
     // Handle upvote logic
   };
 
-  const handleDownvote = () => {
+  const handleDownvote = (id) => {
     // Handle downvote logic
   };
 
-  const handleBookmark = () => {
+  const handleBookmark = (id) => {
     // Handle bookmark logic
   };
 
