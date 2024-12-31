@@ -39,12 +39,7 @@ export default function Header() {
           ...user,
           profile_image: user.profile_image
         });
-      } /* else if (user.profile_image) { // If it's not base64, assume it's a filename and construct the URL
-        setUser({
-          ...user,
-          profile_image: `http://localhost/devslog/uploads/${user.profile_image}`
-        });
-      } */
+      }
     } else if (loggedInAdmin) {
       setIsLoggedIn(true);
       setIsAdmin(true);
@@ -112,7 +107,7 @@ export default function Header() {
       sessionStorage.removeItem('admin');
       navigate('/admin-signin');
     } else {
-      sessionStorage.removeItem('user');
+      localStorage.removeItem('user');
       navigate('/signin');
     }
     setIsLoggedIn(false);

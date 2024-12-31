@@ -9,4 +9,11 @@ export default defineConfig({
     setupFiles: ['./src/setupTests.js'],
     globals: true,
   },
+  proxy: {
+    '/devslog/server': {
+      target: 'http://localhost',
+      changeOrigin: true,
+      secure: false,
+    }
+  }
 })

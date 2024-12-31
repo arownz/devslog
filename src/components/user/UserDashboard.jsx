@@ -10,9 +10,17 @@ export function UserDashboard() {
   useEffect(() => {
     async function fetchPosts() {
       try {
-        const response = await fetch('http://localhost/devslog/server/get_user_posts.php'); // Ensure this endpoint exists
-        const data = await response.json();
-        setPosts(data.posts);
+        const response = await fetch('http://localhost/devslog/server/get_user_posts.php', {
+          credentials: 'include' // This is important for sending cookies
+        });
+        const text = await response.text();
+        console.log('Raw response:', text); // Log the raw response
+        const data = JSON.parse(text);
+        if (data.success) {
+          setPosts(data.posts);
+        } else {
+          console.error('Failed to fetch posts:', data.message);
+        }
       } catch (error) {
         console.error('Error fetching posts:', error);
       }
@@ -21,15 +29,17 @@ export function UserDashboard() {
     fetchPosts();
   }, []);
 
-  const handleUpvote = (id) => {
+
+
+  const handleUpvote = () => {
     // Handle upvote logic
   };
 
-  const handleDownvote = (id) => {
+  const handleDownvote = () => {
     // Handle downvote logic
   };
 
-  const handleBookmark = (id) => {
+  const handleBookmark = () => {
     // Handle bookmark logic
   };
 
@@ -39,7 +49,7 @@ export function UserDashboard() {
       <div className="flex flex-grow">
         <Sidebar isAdmin={false} setIsSidebarOpen={setIsSidebarOpen} />
         <main className={`flex-grow p-8 transition-all duration-300 ${isSidebarOpen ? 'ml-64' : 'ml-16'}`}>
-          <h1 className="text-3xl font-bold mb-6">Your Posts</h1>
+          <h1 className="text-3xl font-bold mb-6">Forum Posts</h1>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
             {posts.map((post) => (
               <PostCard

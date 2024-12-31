@@ -1,8 +1,16 @@
 <?php
-require_once 'config.php';
-session_start(); // Start the session
+// Turn off error reporting for production
+error_reporting(0);
+ini_set('display_errors', 0);
 
-header("Access-Control-Allow-Origin: *");
+// Start output buffering
+ob_start();
+require_once 'config.php';
+
+session_start();
+
+header("Access-Control-Allow-Origin: http://localhost:5173");
+header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json");
 
@@ -12,10 +20,10 @@ $contentType = isset($_SERVER["CONTENT_TYPE"]) ? trim($_SERVER["CONTENT_TYPE"]) 
 // If it's a JSON request, decode the input
 if (strcasecmp($contentType, 'application/json') == 0) {
     $content = trim(file_get_contents("php://input"));
-    $decoded = json_decode($content, true);
+    $decoded = json_decode($content, associative: true);
 
     // If json_decode failed, the JSON is invalid
-    if(!is_array($decoded)) {
+    if (!is_array($decoded)) {
         echo json_encode(["success" => false, "message" => "Invalid JSON"]);
         exit;
     }
@@ -59,9 +67,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $user = $result->fetch_assoc();
                 if (password_verify($password, $user['password'])) {
                     // Password is correct
+                    $_SESSION['user_id'] = $user['id']; // Set the user_id in the session
                     unset($user['password']); // Remove password from user data
                     echo json_encode(["success" => true, "message" => "Login successful", "user" => $user]);
                 } else {
+
                     // Password is incorrect
                     echo json_encode(["success" => false, "message" => "Invalid email or password"]);
                 }
@@ -78,4 +88,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 } else {
     echo json_encode(["success" => false, "message" => "Invalid request method"]);
+}
+
+// At the end of the script:
+$output = ob_get_clean();
+if (json_decode($output) === null) {
+    // If the output is not valid JSON, return an error
+    echo json_encode(['success' => false, 'message' => 'Server error occurred']);
+} else {
+    // If it's valid JSON, return it as is
+    echo $output;
 }
