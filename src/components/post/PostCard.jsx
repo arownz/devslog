@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import PostDetails from './PostDetails';
+import { formatDistanceToNow } from 'date-fns';
 
 PostCard.propTypes = {
   id: PropTypes.number.isRequired,
@@ -18,12 +19,14 @@ PostCard.propTypes = {
   onBookmark: PropTypes.func.isRequired,
   isBookmarked: PropTypes.bool.isRequired,
   layout: PropTypes.oneOf(['grid', 'vertical']).isRequired,
+  onClick: PropTypes.func,
 };
 
-export default function PostCard({ id, image, time, author, title, upvotes, downvotes, comments, isLoggedIn, onUpvote, onDownvote, onBookmark, isBookmarked, layout }) {
+export default function PostCard({ id, image, time, author, title, upvotes, downvotes, comments, isLoggedIn, onUpvote, onDownvote, onBookmark, isBookmarked, layout, onClick }) {
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
 
+  const formattedTime = formatDistanceToNow(new Date(time), { addSuffix: true });
   const handleAction = (action) => {
     if (isLoggedIn) {
       action();
@@ -46,16 +49,19 @@ export default function PostCard({ id, image, time, author, title, upvotes, down
 
   return (
     <>
-      <article className={cardClass} onClick={() => setShowDetails(true)}>
+      <article className={cardClass} onClick={() => {
+        setShowDetails(true);
+        onClick && onClick(id);
+      }}>
         <img
-          src={image || "https://placehold.co/600x400"}
+          src={`data:image/jpeg;base64,${image}`}
           className={imageClass}
           alt={title}
         />
         <div className={contentClass}>
           <h2 className="text-xl font-semibold mb-2">{title}</h2>
           <p className="text-gray-600 text-sm mb-4">
-            <span className="text-green-700">{time}</span> by <span className="font-bold">{author}</span>
+            <span className="text-green-700">{formattedTime}</span> by <span className="font-bold">{author}</span>
           </p>
           <div className="flex justify-between items-center">
             <div className="flex space-x-4">
@@ -93,10 +99,11 @@ export default function PostCard({ id, image, time, author, title, upvotes, down
       </article>
       {showDetails && (
         <PostDetails
-          id={id}
+          postId={id}
           onClose={() => setShowDetails(false)}
         />
       )}
+
     </>
   );
 }

@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css'; // import styles
-import 'react-quill/dist/quill.bubble.css'; // import styles
+import 'react-quill/dist/quill.snow.css';
+import 'react-quill/dist/quill.bubble.css';
 import styles from './AddPost.module.css';
 
 export default function AddPost({ onClose }) {
@@ -16,22 +16,36 @@ export default function AddPost({ onClose }) {
         const formData = new FormData();
         formData.append('title', title);
         formData.append('content', content);
-        formData.append('thumbnail', thumbnail);
+        if (thumbnail) {
+            formData.append('thumbnail', thumbnail);
+        }
 
         try {
             const response = await fetch('http://localhost/devslog/server/create_post.php', {
                 method: 'POST',
                 body: formData,
+                credentials: 'include',
             });
 
-            if (response.ok) {
-                console.log('Post created successfully');
-                onClose();
-            } else {
-                console.error('Failed to create post');
+            const responseText = await response.text();
+            console.log('Raw server response:', responseText);
+
+            try {
+                const data = JSON.parse(responseText);
+                console.log('Parsed server response:', data);
+
+                if (data.success) {
+                    console.log('Post created successfully');
+                    onClose();
+                } else {
+                    console.error('Failed to create post:', data.message);
+                }
+            } catch (jsonError) {
+                console.error('Error parsing JSON:', jsonError);
+                console.error('Raw response:', responseText);
             }
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Fetch Error:', error);
         }
     };
 
@@ -128,3 +142,4 @@ export default function AddPost({ onClose }) {
 AddPost.propTypes = {
     onClose: PropTypes.func.isRequired,
 };
+
