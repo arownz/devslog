@@ -2,6 +2,8 @@
 session_start();
 require_once 'config.php';
 
+// Add this at the beginning of the file
+date_default_timezone_set('UTC');
 header("Access-Control-Allow-Origin: http://localhost:5173");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
@@ -27,8 +29,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user = $result->fetch_assoc();
     $author = $user['username'];
 
-    $stmt = $conn->prepare("INSERT INTO posts (user_id, title, content, thumbnail, author) VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("issss", $user_id, $title, $content, $thumbnail, $author);
+    $created_at = gmdate('Y-m-d H:i:s');  // Use gmdate to ensure UTC time
+
+    $stmt = $conn->prepare("INSERT INTO posts (user_id, title, content, thumbnail, author, created_at) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("isssss", $user_id, $title, $content, $thumbnail, $author, $created_at);
 
     if ($stmt->execute()) {
         echo json_encode(['success' => true, 'message' => 'Post created successfully']);

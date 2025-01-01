@@ -11,6 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $postId = $_GET['id'];
 
     $stmt = $conn->prepare("SELECT p.*, u.username as author FROM posts p JOIN usertblaccounts u ON p.user_id = u.id WHERE p.id = ?");
+    // The created_at field should already be included in the SELECT statement
     $stmt->bind_param("i", $postId);
     $stmt->execute();
     $result = $stmt->get_result();

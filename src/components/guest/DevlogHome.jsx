@@ -3,6 +3,7 @@ import Footer from "../Footer";
 import Header from "../Header";
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import ErrorBoundary from '../ErrorBoundary';
 
 export default function DevlogHome() {
   const [featuredPosts, setFeaturedPosts] = useState([]);
@@ -15,8 +16,8 @@ export default function DevlogHome() {
         id: 1,
         title: "10 Tips for Better React Performance",
         author: "Jane Doe",
-        time: "5 mins ago",
-        image: "https://th.bing.com/th?id=OIP.wqvuIBBlb9K6ULYuu31EEwHaDt&w=312&h=200&c=12&rs=1&qlt=99&o=6&dpr=1.3&pid=23.1",
+        created_at: new Date(Date.now() - 5 * 60 * 1000).toISOString(), // 5 minutes ago
+        image: "https://dsad.com/wp-content/uploads/2017/01/DSADWheelofFortune.jpg",
         upvotes: 25,
         downvotes: 2,
         comments: 3,
@@ -26,10 +27,12 @@ export default function DevlogHome() {
     ].slice(0, 5)); // Limit to 5 posts
   }, []);
 
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
       <Header />
-      <main className="flex-grow container mx-auto px-4 py-8">
+      <ErrorBoundary>
+        <main className="flex-grow container mx-auto px-4 py-8">
         <section className="mb-12">
           <h1 className="text-4xl font-bold mb-4">Featured Forum Posts</h1>
           <p className="text-xl text-gray-600">
@@ -48,15 +51,19 @@ export default function DevlogHome() {
               key={post.id}
               {...post}
               isLoggedIn={false}
-              onUpvote={() => { }}
-              onDownvote={() => { }}
+              onUpvote={() => {}}
+              onDownvote={() => {}}
               onBookmark={() => {}}
               layout="vertical"
             />
           ))}
+
         </div>
+
       </main>
+      </ErrorBoundary>
       <Footer />
     </div>
+
   );
 }

@@ -9,11 +9,27 @@ export default defineConfig({
     setupFiles: ['./src/setupTests.js'],
     globals: true,
   },
+  optimizeDeps: {
+    include: ['react-quill'],
+  },
+  css: {
+    preprocessorOptions: {
+      less: {
+        javascriptEnabled: true,
+      },
+    },
+  },
   proxy: {
     '/devslog/server': {
       target: 'http://localhost',
       changeOrigin: true,
       secure: false,
     }
-  }
+  },
+  resolve: {
+    alias: {
+      'react-quill': 'react-quill',
+    },
+  },
 })
+

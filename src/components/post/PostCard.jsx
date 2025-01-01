@@ -7,7 +7,7 @@ import { formatDistanceToNow } from 'date-fns';
 PostCard.propTypes = {
   id: PropTypes.number.isRequired,
   image: PropTypes.string.isRequired,
-  time: PropTypes.string.isRequired,
+  created_at: PropTypes.string.isRequired,
   author: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   upvotes: PropTypes.number.isRequired,
@@ -22,11 +22,19 @@ PostCard.propTypes = {
   onClick: PropTypes.func,
 };
 
-export default function PostCard({ id, image, time, author, title, upvotes, downvotes, comments, isLoggedIn, onUpvote, onDownvote, onBookmark, isBookmarked, layout, onClick }) {
+export default function PostCard({ id, image, created_at, author, title, upvotes, downvotes, comments, isLoggedIn, onUpvote, onDownvote, onBookmark, isBookmarked, layout, onClick }) {
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
 
-  const formattedTime = formatDistanceToNow(new Date(time), { addSuffix: true });
+  const getLocalTime = (utcDateString) => {
+    const date = new Date(utcDateString);
+    return new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
+  };
+
+  const timeAgo = created_at
+    ? formatDistanceToNow(getLocalTime(created_at), { addSuffix: true })
+    : 'Unknown time';
+
   const handleAction = (action) => {
     if (isLoggedIn) {
       action();
@@ -61,7 +69,7 @@ export default function PostCard({ id, image, time, author, title, upvotes, down
         <div className={contentClass}>
           <h2 className="text-xl font-semibold mb-2">{title}</h2>
           <p className="text-gray-600 text-sm mb-4">
-            <span className="text-green-700">{formattedTime}</span> by <span className="font-bold">{author}</span>
+            <span className="text-green-700">{timeAgo}</span> by <span className="font-bold">{author}</span>
           </p>
           <div className="flex justify-between items-center">
             <div className="flex space-x-4">

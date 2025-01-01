@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import 'react-quill/dist/quill.bubble.css';
 import { formatDistanceToNow } from 'date-fns';
 
 export default function PostDetails({ postId, onClose }) {
@@ -9,6 +9,15 @@ export default function PostDetails({ postId, onClose }) {
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
     const [error, setError] = useState(null);
+
+    const getLocalTime = (utcDateString) => {
+        const date = new Date(utcDateString);
+        return new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
+    };
+
+
+    const timeAgo = post ? formatDistanceToNow(getLocalTime(post.created_at), { addSuffix: true }) : 'Unkwown time';
+    
 
     useEffect(() => {
         async function fetchPostDetails() {
@@ -67,8 +76,9 @@ export default function PostDetails({ postId, onClose }) {
                     <h3 className="text-lg leading-6 font-medium text-gray-900">{post.title}</h3>
 
                     <p className="text-gray-600 text-sm mb-4">
-                        <span className="text-green-700">{formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}</span> by <span className="font-bold">{post.author}</span>
+                        <span className="text-green-700">{timeAgo}</span> by <span className="font-bold">{post.author}</span>
                     </p>
+
                     <div className="mt-2 text-left">
                         <img src={`data:image/jpeg;base64,${post.thumbnail}`} alt={post.title} className="w-full h-auto mb-4" />
                         <ReactQuill
@@ -111,4 +121,5 @@ PostDetails.propTypes = {
     postId: PropTypes.number.isRequired,
     onClose: PropTypes.func.isRequired,
 };
+
 

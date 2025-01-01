@@ -2,7 +2,6 @@ import { useState } from 'react';
 import PropTypes from 'prop-types';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import 'react-quill/dist/quill.bubble.css';
 import styles from './AddPost.module.css';
 
 export default function AddPost({ onClose }) {
@@ -13,12 +12,12 @@ export default function AddPost({ onClose }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        // When submitting the post, don't include the creation time.
+        // The server will handle setting the correct UTC time.
         const formData = new FormData();
         formData.append('title', title);
         formData.append('content', content);
-        if (thumbnail) {
-            formData.append('thumbnail', thumbnail);
-        }
+        formData.append('thumbnail', thumbnail);
 
         try {
             const response = await fetch('http://localhost/devslog/server/create_post.php', {

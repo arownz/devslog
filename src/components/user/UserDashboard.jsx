@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import Header from '../Header';
 import Sidebar from '../Sidebar';
 import PostCard from '../post/PostCard';
+import { formatDistanceToNow } from 'date-fns'; // Add this import
 
 export function UserDashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -14,10 +15,15 @@ export function UserDashboard() {
           credentials: 'include'
         });
         const data = await response.json();
-        console.log('Fetched data:', data); // Log the fetched data
+        console.log('Fetched data:', data);
         if (data.success) {
-          setPosts(data.posts);
-          console.log('Posts set:', data.posts); // Log the posts being set
+          // Process the posts to add the timeAgo property
+          const processedPosts = data.posts.map(post => ({
+            ...post,
+            timeAgo: formatDistanceToNow(new Date(post.created_at), { addSuffix: true })
+          }));
+          setPosts(processedPosts);
+          console.log('Posts set:', processedPosts);
         } else {
           console.error('Failed to fetch posts:', data.message);
         }
@@ -53,17 +59,25 @@ export function UserDashboard() {
               {posts.map((post) => (
                 <PostCard
                   key={post.id}
-                  {...post}
+                  id={post.id}
+                  image={post.thumbnail || 'default-image-url.jpg'}
+                  created_at={post.created_at}
+                  author={post.author}
+                  title={post.title}
+                  upvotes={post.upvotes}
+                  downvotes={post.downvotes}
+                  comments={post.comments_count}
                   isLoggedIn={true}
-                  onUpvote={() => handleUpvote(post.id)}
-                  onDownvote={() => handleDownvote(post.id)}
-                  onBookmark={() => handleBookmark(post.id)}
+                  onUpvote={handleUpvote}
+                  onDownvote={handleDownvote}
+                  onBookmark={handleBookmark}
+                  isBookmarked={post.is_bookmarked}
                   layout="grid"
                 />
               ))}
             </div>
           ) : (
-            <p>No posts found.</p>
+            <p>No posts available.</p>
           )}
         </main>
       </div>
