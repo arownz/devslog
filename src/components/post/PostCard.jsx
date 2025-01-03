@@ -145,4 +145,3 @@ export default function PostCard({ id, image, created_at, author, title, upvotes
     </>
   );
 }
-

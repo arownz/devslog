@@ -29,14 +29,17 @@ try {
         SELECT p.id, p.title, p.content, p.thumbnail, p.author, p.created_at,
                COALESCE(SUM(CASE WHEN pv.vote_type = 'upvote' THEN 1 ELSE 0 END), 0) as upvotes,
                COALESCE(SUM(CASE WHEN pv.vote_type = 'downvote' THEN 1 ELSE 0 END), 0) as downvotes,
-               COUNT(c.id) as comment_count
+               COUNT(DISTINCT c.id) as comment_count
         FROM posts p
         LEFT JOIN post_votes pv ON p.id = pv.post_id
         LEFT JOIN comments c ON p.id = c.post_id
+        WHERE p.user_id = ?
         GROUP BY p.id
         ORDER BY (upvotes - downvotes) DESC, p.created_at DESC
     ");
+    $stmt->bind_param("i", $user_id);
     $stmt->execute();
+
     $result = $stmt->get_result();
 
     $posts = [];

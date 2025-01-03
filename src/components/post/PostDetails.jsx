@@ -93,8 +93,6 @@ export default function PostDetails({ postId, onClose, onVote }) {
         }
     };
 
-
-
     const handleBookmark = () => {
         // TODO: Implement bookmark functionality
         setIsBookmarked(!isBookmarked);
@@ -170,29 +168,28 @@ export default function PostDetails({ postId, onClose, onVote }) {
                         </div>
                         {comments.map(comment => (
                             <div key={comment.id} className="bg-gray-50 rounded-lg p-4 mb-4 flex items-start">
-                                {comment.profile_image ? (
+                                {comment.author_profile_image ? (
                                     <img
-                                        src={comment.profile_image.startsWith('data:image') 
-                                            ? comment.profile_image 
-                                            : `data:image/jpeg;base64,${comment.profile_image}`}
-                                        alt={`${comment.username}'s profile`}
+                                        src={`data:image/jpeg;base64,${comment.author_profile_image}`}
+                                        alt={`${comment.author}'s profile`}
                                         className="w-10 h-10 rounded-full mr-4 object-cover"
                                     />
                                 ) : (
                                     <div className="w-10 h-10 rounded-full mr-4 bg-gray-300 flex items-center justify-center">
                                         <span className="text-gray-600 font-medium">
-                                            {comment.username ? comment.username[0].toUpperCase() : 'P'}
+                                            {comment.author ? comment.author[0].toUpperCase() : 'U'}
                                         </span>
                                     </div>
                                 )}
                                 <div>
-                                    <p className="text-sm font-medium text-gray-900">{comment.username}</p>
-                                    <p className="text-xs text-gray-500 mb-2">{formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}</p>
-                                    <p className="text-gray-700">{comment.content}</p>
+                                    <p className="text-sm font-medium text-gray-900">{comment.author}</p>
+                                    <p className="text-sm text-gray-600">{comment.content}</p>
+                                    <p className="text-xs text-gray-400 mt-1">
+                                        {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
+                                    </p>
                                 </div>
                             </div>
                         ))}
-
                     </div>
                 </div>
                 <button

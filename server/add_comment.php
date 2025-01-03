@@ -13,12 +13,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 // Function to safely encode JSON
-function safe_json_encode($data) {
+function safe_json_encode($data)
+{
     return json_encode($data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
 }
 
 // Error handling function
-function handle_error($message) {
+function handle_error($message)
+{
     echo safe_json_encode(['success' => false, 'message' => $message]);
     exit;
 }
@@ -51,8 +53,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $profile_image = $user['profile_image'];
 
         // Insert comment
-        $stmt = $conn->prepare("INSERT INTO comments (post_id, user_id, content) VALUES (?, ?, ?)");
-        $stmt->bind_param("iis", $post_id, $user_id, $content);
+        $stmt = $conn->prepare("INSERT INTO comments (post_id, user_id, username, profile_image, content) VALUES (?, ?, ?, ?, ?)");
+        $stmt->bind_param("iisss", $post_id, $user_id, $username, $profile_image, $content);
 
         if (!$stmt->execute()) {
             handle_error('Failed to add comment');
@@ -68,14 +70,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $newComment = $result->fetch_assoc();
 
         // Encode the profile image
-        $newComment['profile_image'] = base64_encode($newComment['profile_image']);
+        $newComment['profile_image'] = $newComment['profile_image'] ? base64_encode($newComment['profile_image']) : null;
 
         echo safe_json_encode(['success' => true, 'message' => 'Comment added successfully', 'comment' => $newComment]);
     } catch (Exception $e) {
         handle_error('An error occurred: ' . $e->getMessage());
     } finally {
-        if (isset($stmt)) $stmt->close();
-        if (isset($fetchStmt)) $fetchStmt->close();
+        if (isset($stmt))
+            $stmt->close();
+        if (isset($fetchStmt))
+            $fetchStmt->close();
         $conn->close();
     }
 } else {

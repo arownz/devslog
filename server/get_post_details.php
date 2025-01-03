@@ -42,15 +42,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $comments = $commentResult->fetch_all(MYSQLI_ASSOC);
 
         // Encode profile images for comments
-        // Inside the foreach loop for comments
         foreach ($comments as &$comment) {
-            if ($comment['author_profile_image']) {
-                $comment['author_profile_image'] = base64_encode($comment['author_profile_image']);
-            } else {
-                $comment['author_profile_image'] = null;
-            }
+            $comment['author_profile_image'] = $comment['author_profile_image'] ? base64_encode($comment['author_profile_image']) : null;
         }
-
 
         echo json_encode(['success' => true, 'post' => $post, 'comments' => $comments]);
     } else {
