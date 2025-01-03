@@ -26,7 +26,7 @@ export default function Header() {
   };
 
   useEffect(() => {
-    const loggedInUser = localStorage.getItem('user');
+    const loggedInUser = sessionStorage.getItem('user');
     console.log('Logged in user data: ', loggedInUser);
     const loggedInAdmin = sessionStorage.getItem('admin');
     console.log('Logged in admin data: ', loggedInAdmin);
@@ -107,7 +107,7 @@ export default function Header() {
       sessionStorage.removeItem('admin');
       navigate('/admin-signin');
     } else {
-      localStorage.removeItem('user');
+      sessionStorage.removeItem('user');
       navigate('/signin');
     }
     setIsLoggedIn(false);

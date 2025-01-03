@@ -170,13 +170,21 @@ export default function PostDetails({ postId, onClose, onVote }) {
                         </div>
                         {comments.map(comment => (
                             <div key={comment.id} className="bg-gray-50 rounded-lg p-4 mb-4 flex items-start">
-                                <img
-                                    src={comment.profile_image
-                                        ? `data:image/jpeg;base64,${comment.profile_image}`
-                                        : '/path/to/default/image.jpg'}
-                                    alt={`${comment.username}'s profile`}
-                                    className="w-10 h-10 rounded-full mr-4 object-cover"
-                                />
+                                {comment.profile_image ? (
+                                    <img
+                                        src={comment.profile_image.startsWith('data:image') 
+                                            ? comment.profile_image 
+                                            : `data:image/jpeg;base64,${comment.profile_image}`}
+                                        alt={`${comment.username}'s profile`}
+                                        className="w-10 h-10 rounded-full mr-4 object-cover"
+                                    />
+                                ) : (
+                                    <div className="w-10 h-10 rounded-full mr-4 bg-gray-300 flex items-center justify-center">
+                                        <span className="text-gray-600 font-medium">
+                                            {comment.username ? comment.username[0].toUpperCase() : 'P'}
+                                        </span>
+                                    </div>
+                                )}
                                 <div>
                                     <p className="text-sm font-medium text-gray-900">{comment.username}</p>
                                     <p className="text-xs text-gray-500 mb-2">{formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}</p>
@@ -184,7 +192,6 @@ export default function PostDetails({ postId, onClose, onVote }) {
                                 </div>
                             </div>
                         ))}
-
 
                     </div>
                 </div>
