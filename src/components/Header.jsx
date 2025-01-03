@@ -121,8 +121,8 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-white shadow-md sticky top-0 left-0 right-0 z-30">
-      <div className="container mx-auto px-0 py-5 flex items-center">
+    <header className="bg-white shadow-md fixed top-0 left-0 right-0 z-50 h-16">
+          <div className="container mx-auto px-4 h-full flex items-center justify-between">
         <Link to={getDashboardLink()} className="flex items-center text-2xl font-bold text-green-700 mr-8">
           <img
             src="https://cdn.builder.io/api/v1/image/assets/TEMP/1b7534d8e2e8aebb42d2c416dac3979c0a09e9a096b9a214a7d1e6af7326f39a?placeholderIfAbsent=true&apiKey=b3b06d4cff934296b9a04a1b4e7061de"

@@ -28,6 +28,13 @@ export default function PostDetailsPage() {
         setSelectedPostId(null);
     };
 
+    const handleVote = (postId, voteType, totalUpvotes, totalDownvotes) => {
+        setPosts(prevPosts => prevPosts.map(post => 
+            post.id === postId 
+                ? { ...post, upvotes: totalUpvotes, downvotes: totalDownvotes }
+                : post
+        ));
+    };
     return (
         <div>
             <h1>Posts</h1>
@@ -36,12 +43,14 @@ export default function PostDetailsPage() {
                     key={post.id}
                     {...post}
                     onClick={() => handlePostClick(post.id)}
+                    onVote={handleVote}
                 />
             ))}
             {selectedPostId && (
                 <PostDetails
                     postId={selectedPostId}
                     onClose={handleClosePostDetails}
+                    onVote={handleVote}
                 />
             )}
         </div>

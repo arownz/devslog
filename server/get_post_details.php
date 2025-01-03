@@ -10,8 +10,16 @@ header("Content-Type: application/json");
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $postId = $_GET['id'];
 
-    $stmt = $conn->prepare("SELECT p.*, u.username as author FROM posts p JOIN usertblaccounts u ON p.user_id = u.id WHERE p.id = ?");
-    // The created_at field should already be included in the SELECT statement
+    $stmt = $conn->prepare("
+        SELECT p.*, u.username as author, u.profile_image as author_profile_image,
+               COALESCE(SUM(CASE WHEN pv.vote_type = 'upvote' THEN 1 ELSE 0 END), 0) as upvotes,
+               COALESCE(SUM(CASE WHEN pv.vote_type = 'downvote' THEN 1 ELSE 0 END), 0) as downvotes
+        FROM posts p
+        JOIN usertblaccounts u ON p.user_id = u.id
+        LEFT JOIN post_votes pv ON p.id = pv.post_id
+        WHERE p.id = ?
+        GROUP BY p.id
+    ");
     $stmt->bind_param("i", $postId);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -19,12 +27,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     if ($post) {
         $post['thumbnail'] = base64_encode($post['thumbnail']);
+        $post['author_profile_image'] = base64_encode($post['author_profile_image']);
 
-        $commentStmt = $conn->prepare("SELECT c.*, u.username as author FROM comments c JOIN usertblaccounts u ON c.user_id = u.id WHERE c.post_id = ? ORDER BY c.created_at DESC");
+        $commentStmt = $conn->prepare("
+            SELECT c.*, u.username as author, u.profile_image as author_profile_image 
+            FROM comments c 
+            JOIN usertblaccounts u ON c.user_id = u.id 
+            WHERE c.post_id = ? 
+            ORDER BY c.created_at DESC
+        ");
         $commentStmt->bind_param("i", $postId);
         $commentStmt->execute();
         $commentResult = $commentStmt->get_result();
         $comments = $commentResult->fetch_all(MYSQLI_ASSOC);
+
+        // Encode profile images for comments
+        // Inside the foreach loop for comments
+        foreach ($comments as &$comment) {
+            if ($comment['profile_image']) {
+                $comment['profile_image'] = base64_encode($comment['profile_image']);
+            } else {
+                $comment['profile_image'] = null;
+            }
+        }
 
         echo json_encode(['success' => true, 'post' => $post, 'comments' => $comments]);
     } else {

@@ -10,6 +10,7 @@ require_once 'config.php';
 header("Access-Control-Allow-Origin: http://localhost:5173");
 header("Access-Control-Allow-Credentials: true");
 header("Content-Type: application/json");
+header("Access-Control-Allow-Headers: Content-Type");
 
 session_start();
 
@@ -24,7 +25,17 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 
 try {
-    $stmt = $conn->prepare("SELECT id, title, content, thumbnail, author, created_at, upvotes, downvotes FROM posts ORDER BY created_at DESC");
+    $stmt = $conn->prepare("
+        SELECT p.id, p.title, p.content, p.thumbnail, p.author, p.created_at,
+               COALESCE(SUM(CASE WHEN pv.vote_type = 'upvote' THEN 1 ELSE 0 END), 0) as upvotes,
+               COALESCE(SUM(CASE WHEN pv.vote_type = 'downvote' THEN 1 ELSE 0 END), 0) as downvotes,
+               COUNT(c.id) as comment_count
+        FROM posts p
+        LEFT JOIN post_votes pv ON p.id = pv.post_id
+        LEFT JOIN comments c ON p.id = c.post_id
+        GROUP BY p.id
+        ORDER BY (upvotes - downvotes) DESC, p.created_at DESC
+    ");
     $stmt->execute();
     $result = $stmt->get_result();
 
@@ -35,12 +46,11 @@ try {
             'title' => $row['title'],
             'content' => $row['content'],
             'author' => $row['author'],
-            'created_at' => $row['created_at'], // Return the raw UTC time
+            'created_at' => $row['created_at'],
             'thumbnail' => base64_encode($row['thumbnail']),
-            'upvotes' => [3], // Placeholder for now it dont have algorithm
-            'downvotes' => [24], // Placeholder for now it dont have algorithm
-            'comments' => [6] // Placeholder for now it dont have algorithm
-            // add more fields as needed
+            'upvotes' => $row['upvotes'],
+            'downvotes' => $row['downvotes'],
+            'comments' => $row['comment_count']
         );
     }
 
