@@ -10,7 +10,7 @@ export default function PostDetailsPage() {
         // Fetch posts from your API
         async function fetchPosts() {
             try {
-                const response = await fetch('http://localhost/devslog/server/get_user_posts.php');
+                const response = await fetch('http://localhost/devslog/server/get_all_posts.php');
                 const data = await response.json();
                 setPosts(data);
             } catch (error) {

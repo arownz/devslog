@@ -11,7 +11,7 @@ export function UserDashboard() {
   useEffect(() => {
     async function fetchPosts() {
       try {
-        const response = await fetch('http://localhost/devslog/server/get_user_posts.php', {
+        const response = await fetch('http://localhost/devslog/server/get_all_posts.php', {
           credentials: 'include'
         });
         const data = await response.json();

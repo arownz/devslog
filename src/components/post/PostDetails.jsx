@@ -1,16 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.bubble.css';
 import { formatDistanceToNow } from 'date-fns';
 import { FaArrowUp, FaArrowDown, FaBookmark, FaRegBookmark, FaComment } from 'react-icons/fa';
 
-export default function PostDetails({ postId, onClose, onVote }) {
+export default function PostDetails({ postId, onClose, onVote, scrollToComments }) {
     const [post, setPost] = useState(null);
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
     const [error, setError] = useState(null);
     const [isBookmarked, setIsBookmarked] = useState(false);
+    const [userVote, setUserVote] = useState(null);
+    const commentsRef = useRef(null);
 
     const getLocalTime = (utcDateString) => {
         const date = new Date(utcDateString);
@@ -19,28 +21,38 @@ export default function PostDetails({ postId, onClose, onVote }) {
 
     const timeAgo = post ? formatDistanceToNow(getLocalTime(post.created_at), { addSuffix: true }) : 'Unknown time';
 
+    useEffect(() => {
+        fetchPostDetails();
+        if (scrollToComments) {
+            setTimeout(() => {
+                commentsRef.current?.scrollIntoView({ behavior: 'smooth' });
+            }, 100);
+        }
+    }, [postId, scrollToComments]);
+
     async function fetchPostDetails() {
         try {
-            console.log('Fetching post details for postId:', postId);
             const response = await fetch(`http://localhost/devslog/server/get_post_details.php?id=${postId}`);
             const data = await response.json();
-            console.log('Received data:', data);
             if (data.success) {
                 setPost(data.post);
                 setComments(data.comments);
+                setUserVote(data.userVote);
             } else {
                 console.error('Failed to fetch post details:', data.message);
                 setError(data.message);
             }
         } catch (error) {
             console.error('Error fetching post details:', error);
-            setError('Failed to fetch post details. Please try again later.');
+            setError('An error occurred while fetching post details.');
         }
     }
 
     useEffect(() => {
-        fetchPostDetails();
-    }, [postId]);
+        if (scrollToComments && commentsRef.current) {
+            commentsRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [scrollToComments, comments]);
 
     const handleVote = async (voteType) => {
         try {
@@ -52,13 +64,16 @@ export default function PostDetails({ postId, onClose, onVote }) {
                 },
                 body: `post_id=${postId}&vote_type=${voteType}`,
             });
+
             const data = await response.json();
+
             if (data.success) {
                 setPost(prevPost => ({
                     ...prevPost,
                     upvotes: data.totalUpvotes,
                     downvotes: data.totalDownvotes
                 }));
+                setUserVote(prevVote => prevVote === voteType ? null : voteType);
                 onVote(postId, voteType, data.totalUpvotes, data.totalDownvotes);
             } else {
                 console.error('Vote failed:', data.message);
@@ -113,14 +128,21 @@ export default function PostDetails({ postId, onClose, onVote }) {
                 <div className="p-6 md:p-8 max-h-[90vh] overflow-y-auto">
                     <div className="flex flex-col md:flex-row">
                         <div className="flex flex-row md:flex-col items-center md:items-start mb-4 md:mb-0 md:mr-6 space-x-4 md:space-x-0 md:space-y-2">
-                            <button onClick={() => handleVote('upvote')} className="text-gray-400 hover:text-green-500 focus:outline-none">
+                            <button 
+                                onClick={() => handleVote('upvote')} 
+                                className={`focus:outline-none ${userVote === 'upvote' ? 'text-green-500' : 'text-gray-400 hover:text-green-500'}`}
+                            >
                                 <FaArrowUp size={24} />
                             </button>
                             <span className="font-bold text-lg">{post.upvotes - post.downvotes}</span>
-                            <button onClick={() => handleVote('downvote')} className="text-gray-400 hover:text-red-500 focus:outline-none">
+                            <button 
+                                onClick={() => handleVote('downvote')} 
+                                className={`focus:outline-none ${userVote === 'downvote' ? 'text-red-500' : 'text-gray-400 hover:text-red-500'}`}
+                            >
                                 <FaArrowDown size={24} />
                             </button>
                         </div>
+
                         <div className="flex-grow">
                             <h2 className="text-2xl font-bold mb-2">{post.title}</h2>
                             <p className="text-sm text-gray-500 mb-4">
@@ -149,7 +171,7 @@ export default function PostDetails({ postId, onClose, onVote }) {
                             </div>
                         </div>
                     </div>
-                    <div className="mt-8">
+                    <div className="mt-8" ref={commentsRef}>
                         <h3 className="text-xl font-bold mb-4">Comments</h3>
                         <div className="mb-4">
                             <textarea
@@ -209,4 +231,6 @@ PostDetails.propTypes = {
     postId: PropTypes.number.isRequired,
     onClose: PropTypes.func.isRequired,
     onVote: PropTypes.func.isRequired,
+    scrollToComments: PropTypes.bool,
 };
+

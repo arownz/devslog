@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     if ($post) {
         $post['thumbnail'] = base64_encode($post['thumbnail']);
-        $post['author_profile_image'] = base64_encode($post['author_profile_image']);
+        $post['author_profile_image'] = $post['author_profile_image'] ? base64_encode($post['author_profile_image']) : null;
 
         $commentStmt = $conn->prepare("
             SELECT c.*, u.username as author, u.profile_image as author_profile_image 
