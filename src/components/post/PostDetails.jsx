@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.bubble.css';
@@ -10,7 +10,7 @@ export default function PostDetails({ postId, onClose, onVote, scrollToComments 
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
     const [error, setError] = useState(null);
-    const [isBookmarked, onBookmark] = useState(false);
+    const [isBookmarked, setIsBookmarked] = useState(false);
     const [userVote, setUserVote] = useState(null);
     const commentsRef = useRef(null);
 
@@ -21,16 +21,7 @@ export default function PostDetails({ postId, onClose, onVote, scrollToComments 
 
     const timeAgo = post ? formatDistanceToNow(getLocalTime(post.created_at), { addSuffix: true }) : 'Unknown time';
 
-    useEffect(() => {
-        fetchPostDetails();
-        if (scrollToComments) {
-            setTimeout(() => {
-                commentsRef.current?.scrollIntoView({ behavior: 'smooth' });
-            }, 100);
-        }
-    }, [postId, scrollToComments]);
-
-    async function fetchPostDetails() {
+    const fetchPostDetails = useCallback(async () => {
         try {
             const response = await fetch(`http://localhost/devslog/server/get_post_details.php?id=${postId}`);
             const data = await response.json();
@@ -46,8 +37,33 @@ export default function PostDetails({ postId, onClose, onVote, scrollToComments 
             console.error('Error fetching post details:', error);
             setError('An error occurred while fetching post details.');
         }
-    }
+    }, [postId]); // Add postId to the dependency array
 
+    useEffect(() => {
+        fetchPostDetails();
+        checkBookmarkStatus();
+        if (scrollToComments) {
+            setTimeout(() => {
+                commentsRef.current?.scrollIntoView({ behavior: 'smooth' });
+            }, 100);
+        }
+    }, [postId, scrollToComments, fetchPostDetails]); // Add fetchPostDetails to the dependency array
+
+    async function checkBookmarkStatus() {
+        try {
+            const response = await fetch(`http://localhost/devslog/server/check_bookmark.php?post_id=${postId}`, {
+                credentials: 'include',
+            });
+            const data = await response.json();
+            if (data.success) {
+                setIsBookmarked(data.isBookmarked);
+            } else {
+                console.error('Failed to check bookmark status:', data.message);
+            }
+        } catch (error) {
+            console.error('Error checking bookmark status:', error);
+        }
+    }
     useEffect(() => {
         if (scrollToComments && commentsRef.current) {
             commentsRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -83,7 +99,6 @@ export default function PostDetails({ postId, onClose, onVote, scrollToComments 
         }
     };
 
-
     const defaultImage = 'https://via.placeholder.com/150';
 
     const handleAddComment = async () => {
@@ -111,29 +126,29 @@ export default function PostDetails({ postId, onClose, onVote, scrollToComments 
         }
     };
 
-    // Ensure you have a similar handleBookmark function as in PostCard
     const handleBookmark = async () => {
-      try {
-        const response = await fetch(`http://localhost/devslog/server/${isBookmarked ? 'remove_bookmark' : 'add_bookmark'}.php`, {
-          method: 'POST',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          body: `post_id=${postId}`,
-        });
+        try {
+            const response = await fetch(`http://localhost/devslog/server/${isBookmarked ? 'remove_bookmark' : 'add_bookmark'}.php`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `post_id=${postId}`,
+            });
 
-        const data = await response.json();
+            const data = await response.json();
 
-        if (data.success) {
-          onBookmark(postId);
-        } else {
-          console.error('Bookmark action failed:', data.message);
+            if (data.success) {
+                setIsBookmarked(!isBookmarked);
+            } else {
+                console.error('Bookmark action failed:', data.message);
+            }
+        } catch (error) {
+            console.error('Error performing bookmark action:', error);
         }
-      } catch (error) {
-        console.error('Error performing bookmark action:', error);
-      }
     };
+
 
     if (error) {
         return <div className="text-red-500">{error}</div>;
