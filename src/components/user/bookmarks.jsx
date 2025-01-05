@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import PostCard from '../post/PostCard';
+
 export default function Bookmarks() {
   const [bookmarks, setBookmarks] = useState([]);
 
@@ -9,6 +10,9 @@ export default function Bookmarks() {
         const response = await fetch('http://localhost/devslog/server/get_bookmarks.php', {
           credentials: 'include',
         });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
         if (data.success) {
           setBookmarks(data.bookmarks);
@@ -21,6 +25,7 @@ export default function Bookmarks() {
     }
     fetchBookmarks();
   }, []);
+
   return (
     <div>
       <h1>Your Bookmarks</h1>
@@ -35,3 +40,4 @@ export default function Bookmarks() {
     </div>
   );
 }
+

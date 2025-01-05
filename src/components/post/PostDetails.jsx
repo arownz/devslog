@@ -10,7 +10,7 @@ export default function PostDetails({ postId, onClose, onVote, scrollToComments 
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
     const [error, setError] = useState(null);
-    const [isBookmarked, setIsBookmarked] = useState(false);
+    const [isBookmarked, onBookmark] = useState(false);
     const [userVote, setUserVote] = useState(null);
     const commentsRef = useRef(null);
 
@@ -111,6 +111,7 @@ export default function PostDetails({ postId, onClose, onVote, scrollToComments 
         }
     };
 
+    // Ensure you have a similar handleBookmark function as in PostCard
     const handleBookmark = async () => {
       try {
         const response = await fetch(`http://localhost/devslog/server/${isBookmarked ? 'remove_bookmark' : 'add_bookmark'}.php`, {
@@ -125,7 +126,7 @@ export default function PostDetails({ postId, onClose, onVote, scrollToComments 
         const data = await response.json();
 
         if (data.success) {
-          setIsBookmarked(!isBookmarked);
+          onBookmark(postId);
         } else {
           console.error('Bookmark action failed:', data.message);
         }
@@ -133,7 +134,6 @@ export default function PostDetails({ postId, onClose, onVote, scrollToComments 
         console.error('Error performing bookmark action:', error);
       }
     };
-
 
     if (error) {
         return <div className="text-red-500">{error}</div>;

@@ -22,6 +22,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $stmt = $conn->prepare("INSERT INTO bookmarks (user_id, post_id) VALUES (?, ?)");
+    if (!$stmt) {
+        echo json_encode(['success' => false, 'message' => 'Failed to prepare statement']);
+        exit;
+    }
     $stmt->bind_param("ii", $user_id, $post_id);
 
     if ($stmt->execute()) {
@@ -35,3 +39,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 } else {
     echo json_encode(['success' => false, 'message' => 'Invalid request method']);
 }
+

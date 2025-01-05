@@ -12,7 +12,7 @@ export default function PostCard({
   title,
   upvotes,
   downvotes,
-  comments, // Ensure this prop is passed correctly
+  comments,
   isLoggedIn,
   onBookmark,
   isBookmarked,
@@ -168,7 +168,6 @@ export default function PostCard({
     </>
   );
 }
-
 
 PostCard.propTypes = {
   id: PropTypes.number.isRequired,
