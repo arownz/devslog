@@ -82,21 +82,28 @@ export default function PostCard({
     onClick && onClick(id);
   };
 
-  const handleCommentClick = (e) => {
+  const handleBookmark = async (e) => {
     e.stopPropagation();
-    setShowDetails(true);
-    onClick && onClick(id);
-    setTimeout(() => {
-      const commentsSection = document.getElementById('comments-section');
-      if (commentsSection) {
-        commentsSection.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 100);
-  };
+    try {
+      const response = await fetch(`http://localhost/devslog/server/${isBookmarked ? 'remove_bookmark' : 'add_bookmark'}.php`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `post_id=${id}`,
+      });
 
-  const handleBookmark = (e) => {
-    e.stopPropagation();
-    onBookmark(id);
+      const data = await response.json();
+
+      if (data.success) {
+        onBookmark(id);
+      } else {
+        console.error('Bookmark action failed:', data.message);
+      }
+    } catch (error) {
+      console.error('Error performing bookmark action:', error);
+    }
   };
 
   return (
@@ -126,7 +133,7 @@ export default function PostCard({
                 </svg>
               </button>
               <button
-                onClick={handleCommentClick}
+                onClick={(e) => { e.stopPropagation(); handleCardClick(); }}
                 className="flex items-center text-gray-600 hover:text-purple-500"
               >
                 <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -134,7 +141,6 @@ export default function PostCard({
                 </svg>
                 <span>{comments}</span> {/* Display comments count */}
               </button>
-
             </div>
             <button onClick={handleBookmark} className={`text-gray-600 hover:text-yellow-500 ${isBookmarked ? 'text-yellow-500' : ''}`}>
               <svg className="w-5 h-5" fill={isBookmarked ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -153,7 +159,7 @@ export default function PostCard({
         <PostDetails
           postId={id}
           onClose={() => setShowDetails(false)}
-          scrollToComments={true}
+          scrollToComments={false} // Ensure it doesn't scroll to comments
           upvotes={localUpvotes}
           downvotes={localDownvotes}
           onVote={handleVote}
@@ -163,19 +169,20 @@ export default function PostCard({
   );
 }
 
+
 PostCard.propTypes = {
   id: PropTypes.number.isRequired,
   image: PropTypes.string.isRequired,
   created_at: PropTypes.string.isRequired,
   author: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
-  upvotes: PropTypes.number.isRequired,
-  downvotes: PropTypes.number.isRequired,
-  onVote: PropTypes.func.isRequired,
-  comments: PropTypes.number.isRequired,
+  upvotes: PropTypes.number,
+  downvotes: PropTypes.number,
+  onVote: PropTypes.func,
+  comments: PropTypes.number,
   isLoggedIn: PropTypes.bool.isRequired,
-  onBookmark: PropTypes.func.isRequired,
-  isBookmarked: PropTypes.bool.isRequired,
+  onBookmark: PropTypes.func,
+  isBookmarked: PropTypes.bool,
   layout: PropTypes.oneOf(['grid', 'vertical']).isRequired,
   onClick: PropTypes.func,
 };

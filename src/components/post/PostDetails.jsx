@@ -111,11 +111,29 @@ export default function PostDetails({ postId, onClose, onVote, scrollToComments 
         }
     };
 
-    const handleBookmark = () => {
-        // TODO: Implement bookmark functionality
-        setIsBookmarked(!isBookmarked);
-        console.log('Bookmark');
+    const handleBookmark = async () => {
+      try {
+        const response = await fetch(`http://localhost/devslog/server/${isBookmarked ? 'remove_bookmark' : 'add_bookmark'}.php`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `post_id=${postId}`,
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          setIsBookmarked(!isBookmarked);
+        } else {
+          console.error('Bookmark action failed:', data.message);
+        }
+      } catch (error) {
+        console.error('Error performing bookmark action:', error);
+      }
     };
+
 
     if (error) {
         return <div className="text-red-500">{error}</div>;
