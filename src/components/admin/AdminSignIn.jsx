@@ -54,7 +54,7 @@ export function AdminSignIn() {
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
       <Header />
-      <main className="flex-grow flex items-center justify-center px-4 py-12">
+      <main className="flex-grow flex items-center justify-center px-4 py-12 mt-16">
         <div className="max-w-4xl w-full bg-white rounded-2xl shadow-xl overflow-hidden">
           <div className="flex flex-col md:flex-row">
             <div className="md:w-1/2 bg-blue-600 p-12 text-white flex flex-col justify-center">

@@ -48,7 +48,7 @@ INSERT INTO `admintblaccounts` (`id`, `email`, `password`, `created_at`) VALUES
 --
 -- Table structure for table `comments`
 --
-
+  
 CREATE TABLE `comments` (
   `id` int(11) NOT NULL,
   `post_id` int(11) NOT NULL,

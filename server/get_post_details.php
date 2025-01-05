@@ -29,6 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $post['thumbnail'] = base64_encode($post['thumbnail']);
         $post['author_profile_image'] = $post['author_profile_image'] ? base64_encode($post['author_profile_image']) : null;
 
+        // Fetch comments with user details
         $commentStmt = $conn->prepare("
             SELECT c.*, u.username as author, u.profile_image as author_profile_image 
             FROM comments c 
@@ -36,6 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             WHERE c.post_id = ? 
             ORDER BY c.created_at DESC
         ");
+
         $commentStmt->bind_param("i", $postId);
         $commentStmt->execute();
         $commentResult = $commentStmt->get_result();
@@ -44,6 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         // Encode profile images for comments
         foreach ($comments as &$comment) {
             $comment['author_profile_image'] = $comment['author_profile_image'] ? base64_encode($comment['author_profile_image']) : null;
+
         }
 
         echo json_encode(['success' => true, 'post' => $post, 'comments' => $comments]);

@@ -24,6 +24,7 @@ function handle_error($message)
     echo safe_json_encode(['success' => false, 'message' => $message]);
     exit;
 }
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!isset($_SESSION['user_id'])) {
         handle_error('User not logged in');
@@ -53,6 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $profile_image = $user['profile_image'];
 
         // Insert comment
+        // Insert comment with username and profile image
         $stmt = $conn->prepare("INSERT INTO comments (post_id, user_id, username, profile_image, content) VALUES (?, ?, ?, ?, ?)");
         $stmt->bind_param("iisss", $post_id, $user_id, $username, $profile_image, $content);
 
@@ -76,12 +78,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } catch (Exception $e) {
         handle_error('An error occurred: ' . $e->getMessage());
     } finally {
-        if (isset($stmt))
-            $stmt->close();
-        if (isset($fetchStmt))
-            $fetchStmt->close();
+        if (isset($stmt)) $stmt->close();
+        if (isset($fetchStmt)) $fetchStmt->close();
         $conn->close();
     }
 } else {
     handle_error('Invalid request method');
 }
+

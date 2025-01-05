@@ -83,6 +83,9 @@ export default function PostDetails({ postId, onClose, onVote, scrollToComments 
         }
     };
 
+
+    const defaultImage = 'https://via.placeholder.com/150';
+
     const handleAddComment = async () => {
         try {
             const response = await fetch('http://localhost/devslog/server/add_comment.php', {
@@ -129,14 +132,14 @@ export default function PostDetails({ postId, onClose, onVote, scrollToComments 
                     <div className="flex flex-col md:flex-row">
                         <div className="flex flex-row md:flex-col items-center md:items-start mb-4 md:mb-0 md:mr-6 space-x-4 md:space-x-0 md:space-y-2">
                             <button 
-                                onClick={() => handleVote('upvote')} 
+                                onClick={() => handleVote('upvote')}
                                 className={`focus:outline-none ${userVote === 'upvote' ? 'text-green-500' : 'text-gray-400 hover:text-green-500'}`}
                             >
                                 <FaArrowUp size={24} />
                             </button>
                             <span className="font-bold text-lg">{post.upvotes - post.downvotes}</span>
                             <button 
-                                onClick={() => handleVote('downvote')} 
+                                onClick={() => handleVote('downvote')}
                                 className={`focus:outline-none ${userVote === 'downvote' ? 'text-red-500' : 'text-gray-400 hover:text-red-500'}`}
                             >
                                 <FaArrowDown size={24} />
@@ -150,7 +153,7 @@ export default function PostDetails({ postId, onClose, onVote, scrollToComments 
                             </p>
                             <div className="mb-4 flex justify-center">
                                 <img
-                                    src={`data:image/jpeg;base64,${post.thumbnail}`}
+                                    src={post.thumbnail ? `data:image/jpeg;base64,${post.thumbnail}` : defaultImage}
                                     alt={post.title}
                                     className="max-w-full h-auto rounded-lg object-cover"
                                     style={{ maxHeight: '400px' }}
@@ -175,7 +178,7 @@ export default function PostDetails({ postId, onClose, onVote, scrollToComments 
                         <h3 className="text-xl font-bold mb-4">Comments</h3>
                         <div className="mb-4">
                             <textarea
-                                className="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                                 placeholder="What are your thoughts?"
                                 rows="4"
                                 value={newComment}
@@ -183,35 +186,49 @@ export default function PostDetails({ postId, onClose, onVote, scrollToComments 
                             />
                             <button
                                 onClick={handleAddComment}
-                                className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                className="mt-2 bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                             >
                                 Comment
                             </button>
                         </div>
                         {comments.map(comment => (
                             <div key={comment.id} className="bg-gray-50 rounded-lg p-4 mb-4 flex items-start">
-                                {comment.author_profile_image ? (
-                                    <img
-                                        src={`data:image/jpeg;base64,${comment.author_profile_image}`}
-                                        alt={`${comment.author}'s profile`}
-                                        className="w-10 h-10 rounded-full mr-4 object-cover"
-                                    />
-                                ) : (
-                                    <div className="w-10 h-10 rounded-full mr-4 bg-gray-300 flex items-center justify-center">
-                                        <span className="text-gray-600 font-medium">
-                                            {comment.author ? comment.author[0].toUpperCase() : 'U'}
-                                        </span>
+                                <div className="flex-shrink-0 mr-4">
+                                    {comment.profile_image ? (
+                                        <img
+                                            src={comment.profile_image.startsWith('data:image') 
+                                                ? comment.profile_image 
+                                                : `data:image/jpeg;base64,${comment.profile_image}`}
+                                            alt={`${comment.username}'s profile`}
+                                            className="w-10 h-10 rounded-full object-cover"
+                                            onError={(e) => {
+                                                console.error('Error loading image:', e);
+                                                e.target.onerror = null;
+                                                e.target.src = defaultImage; // Use default image
+                                            }}
+                                        />
+                                    ) : (
+                                        <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
+                                            <span className="text-gray-600 font-medium">
+                                                {comment.username ? comment.username[0].toUpperCase() : 'U'}
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="flex-grow">
+                                    <div className="flex items-center mb-1">
+                                        <p className="text-sm font-medium text-gray-900 mr-2">
+                                            {comment.username || 'Anonymous'}
+                                        </p>
+                                        <p className="text-xs text-gray-400">
+                                            {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
+                                        </p>
                                     </div>
-                                )}
-                                <div>
-                                    <p className="text-sm font-medium text-gray-900">{comment.author}</p>
                                     <p className="text-sm text-gray-600">{comment.content}</p>
-                                    <p className="text-xs text-gray-400 mt-1">
-                                        {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
-                                    </p>
                                 </div>
                             </div>
                         ))}
+
                     </div>
                 </div>
                 <button
@@ -231,6 +248,6 @@ PostDetails.propTypes = {
     postId: PropTypes.number.isRequired,
     onClose: PropTypes.func.isRequired,
     onVote: PropTypes.func.isRequired,
-    scrollToComments: PropTypes.bool,
+    scrollToComments: PropTypes.bool
 };
 

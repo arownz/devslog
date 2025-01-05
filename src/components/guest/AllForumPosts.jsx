@@ -26,19 +26,19 @@ export default function AllForumPosts() {
   }, []);
 
   return (
-    <div className="flex flex-col min-h-screen bg-white">
+    <div className="flex flex-col min-h-screen bg-gray-100">
       <Header />
-      <main className="flex-grow container mx-auto px-4 py-8">
+      <main className="flex-grow container mx-auto px-4 py-8 pt-20">
         <h1 className="text-4xl font-bold mb-8">All Forum Posts</h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           {forumPosts.map((post) => (
             <PostCard
               key={post.id}
               {...post}
               isLoggedIn={false}
-              onUpvote={() => { }}
-              onDownvote={() => { }}
-              onBookmark={() => { }}
+              onUpvote={() => alert('Please log in to upvote')}
+              onDownvote={() => alert('Please log in to downvote')}
+              onBookmark={() => alert('Please log in to bookmark')}
               layout="grid"
             />
           ))}
@@ -48,4 +48,3 @@ export default function AllForumPosts() {
     </div>
   );
 }
-

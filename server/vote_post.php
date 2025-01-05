@@ -24,16 +24,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
+    // Update the vote in the database
     $stmt = $conn->prepare("INSERT INTO post_votes (post_id, user_id, vote_type) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE vote_type = VALUES(vote_type)");
     $stmt->bind_param("iis", $post_id, $user_id, $vote_type);
-
-    if ($stmt->execute()) {
-        echo json_encode(['success' => true, 'message' => 'Vote recorded successfully']);
-    } else {
-        echo json_encode(['success' => false, 'message' => 'Error recording vote']);
-    }
-
+    $stmt->execute();
     $stmt->close();
+
+    // Fetch the updated vote counts
+    $stmt = $conn->prepare("SELECT SUM(vote_type = 'upvote') AS totalUpvotes, SUM(vote_type = 'downvote') AS totalDownvotes FROM votes WHERE post_id = ?");
+    $stmt->bind_param("i", $post_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $voteCounts = $result->fetch_assoc();
+
+    echo json_encode([
+        'success' => true,
+        'totalUpvotes' => $voteCounts['totalUpvotes'],
+        'totalDownvotes' => $voteCounts['totalDownvotes']
+    ]);
 } else {
     echo json_encode(['success' => false, 'message' => 'Invalid request method']);
 }

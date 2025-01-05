@@ -5,8 +5,8 @@ const About = () => {
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       <Header />
-      <main className="flex-grow">
-        <section className="py-20 bg-gradient-to-b from-blue-600 to-blue-800 text-white">
+      <main className="flex-grow pt-16"> {/* Add pt-16 for top padding */}
+        <section className="py-20 bg-gradient-to-b from-green-600 to-green-800 text-white">
           <div className="container mx-auto px-4">
             <h1 className="text-4xl md:text-5xl font-bold mb-6 text-center">About Devslog</h1>
             <p className="text-xl md:text-2xl text-center max-w-3xl mx-auto">
