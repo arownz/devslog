@@ -25,7 +25,7 @@ const MyFeed = ({ posts }) => (
             title={post.title}
             upvotes={post.upvotes}
             downvotes={post.downvotes}
-            comments={post.comments_count}
+            comments={post.comments}
             isLoggedIn={true}
             layout="grid"
           />
@@ -47,7 +47,7 @@ MyFeed.propTypes = {
       title: PropTypes.string.isRequired,
       upvotes: PropTypes.number.isRequired,
       downvotes: PropTypes.number.isRequired,
-      comments_count: PropTypes.number.isRequired,
+      comments: PropTypes.number.isRequired,
     })
   ).isRequired,
 };

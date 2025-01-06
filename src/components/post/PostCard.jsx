@@ -22,10 +22,17 @@ export default function PostCard({
 }) {
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
-  const [localUpvotes, setLocalUpvotes] = useState(upvotes);
-  const [localDownvotes, setLocalDownvotes] = useState(downvotes);
+  const [localUpvotes, setLocalUpvotes] = useState(upvotes || 0);
+  const [localDownvotes, setLocalDownvotes] = useState(downvotes || 0);
   const [localIsBookmarked, setLocalIsBookmarked] = useState(isBookmarked);
 
+  // Add this function to handle undefined image
+  const getImageSrc = () => {
+    if (image && image !== 'default-image-url.jpg') {
+      return `data:image/jpeg;base64,${image}`;
+    }
+    return '/path/to/default/image.jpg'; // Replace with your actual default image path
+  };
   const getLocalTime = (utcDateString) => {
     const date = new Date(utcDateString);
     return new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
@@ -119,10 +126,11 @@ export default function PostCard({
     <>
       <article className={cardClass} onClick={handleCardClick}>
         <img
-          src={`data:image/jpeg;base64,${image}`}
+          src={getImageSrc()}
           className={imageClass}
           alt={title}
         />
+
         <div className={contentClass}>
           <h2 className="text-xl font-semibold mb-2">{title}</h2>
           <p className="text-gray-600 text-sm mb-4">

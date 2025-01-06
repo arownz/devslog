@@ -10,6 +10,8 @@ require_once 'config.php';
 header("Access-Control-Allow-Origin: http://localhost:5173");
 header("Access-Control-Allow-Credentials: true");
 header("Content-Type: application/json; charset=utf-8");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+
 
 function utf8ize($mixed) {
     if (is_array($mixed)) {
@@ -29,35 +31,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     }
 
     $user_id = $_SESSION['user_id'];
-    error_log("User ID: " . $user_id);
 
     $stmt = $conn->prepare("
-        SELECT p.* FROM bookmarks b
+        SELECT p.*, 
+               COALESCE(SUM(CASE WHEN pv.vote_type = 'upvote' THEN 1 ELSE 0 END), 0) as upvotes,
+               COALESCE(SUM(CASE WHEN pv.vote_type = 'downvote' THEN 1 ELSE 0 END), 0) as downvotes,
+               COUNT(DISTINCT c.id) as comments
+        FROM bookmarks b
         JOIN posts p ON b.post_id = p.id
+        LEFT JOIN post_votes pv ON p.id = pv.post_id
+        LEFT JOIN comments c ON p.id = c.post_id
         WHERE b.user_id = ?
+        GROUP BY p.id
     ");
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
     $result = $stmt->get_result();
-    $bookmarks = $result->fetch_all(MYSQLI_ASSOC);
+    $bookmarks = [];
 
-    error_log("Number of bookmarks: " . count($bookmarks));
-
-    // Convert all data to UTF-8
-    $bookmarks = utf8ize($bookmarks);
-
-    $json_output = json_encode(['success' => true, 'bookmarks' => $bookmarks], JSON_UNESCAPED_UNICODE);
-
-    if ($json_output === false) {
-        error_log("JSON encode error: " . json_last_error_msg());
-        echo json_encode(['success' => false, 'message' => 'Server error occurred: Failed to encode JSON']);
-    } else {
-        echo $json_output;
+    while ($row = $result->fetch_assoc()) {
+        $bookmarks[] = array(
+            'id' => $row['id'],
+            'title' => $row['title'],
+            'content' => $row['content'],
+            'author' => $row['author'],
+            'created_at' => $row['created_at'],
+            'thumbnail' => base64_encode($row['thumbnail']),
+            'upvotes' => $row['upvotes'],
+            'downvotes' => $row['downvotes'],
+            'comments' => $row['comments']
+        );
     }
+
+    echo json_encode(['success' => true, 'bookmarks' => $bookmarks]);
 
     $stmt->close();
     $conn->close();
 } else {
     echo json_encode(['success' => false, 'message' => 'Invalid request method']);
 }
-

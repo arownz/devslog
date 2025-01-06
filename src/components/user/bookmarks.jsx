@@ -3,67 +3,71 @@ import PostCard from '../post/PostCard';
 
 export default function Bookmarks() {
   const [bookmarks, setBookmarks] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    async function fetchBookmarks() {
-      try {
-        const response = await fetch('http://localhost/devslog/server/get_bookmarks.php', {
-          credentials: 'include',
-        });
-        console.log('Response status:', response.status);
-        console.log('Response headers:', response.headers);
-        const text = await response.text();
-        console.log('Raw server response:', text);
-        let data;
-        try {
-          data = JSON.parse(text);
-          console.log('Parsed data:', data);
-        } catch (e) {
-          console.error('Invalid JSON:', text);
-          throw new Error('Server returned invalid JSON');
-        }
-        if (data.success) {
-          setBookmarks(data.bookmarks);
-        } else {
-          setError(data.message || 'Failed to fetch bookmarks');
-        }
-      } catch (error) {
-        console.error('Error fetching bookmarks:', error);
-        setError('An error occurred while fetching bookmarks');
-      }
-    }
-
     fetchBookmarks();
   }, []);
 
-  const handleBookmark = (postId, isBookmarked) => {
+  const fetchBookmarks = async () => {
+    try {
+      const response = await fetch('http://localhost/devslog/server/get_bookmarks.php', {
+        credentials: 'include'
+      });
+      const data = await response.json();
+      if (data.success) {
+        setBookmarks(data.bookmarks);
+      } else {
+        setError(data.message);
+      }
+    } catch (error) {
+      setError('Failed to fetch bookmarks');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleBookmarkToggle = async (postId, isBookmarked) => {
+    // Implement bookmark toggle logic here
+    // This should update the server and then refresh the bookmarks
+    // For now, we'll just remove the bookmark from the local state
     if (!isBookmarked) {
       setBookmarks(bookmarks.filter(bookmark => bookmark.id !== postId));
     }
   };
 
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
+  if (isLoading) return <div>Loading bookmarks...</div>;
+  if (error) return <div>Error: {error}</div>;
+
   return (
     <div>
-      <h1>Your Bookmarks</h1>
-      {bookmarks.length === 0 ? (
-        <p>You have no bookmarks yet.</p>
+      <h1 className="text-3xl font-bold mb-6">My Bookmarks</h1>
+      {bookmarks.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {bookmarks.map((bookmark) => (
+            <PostCard
+              key={bookmark.id}
+              id={bookmark.id}
+              image={bookmark.thumbnail}
+              created_at={bookmark.created_at}
+              author={bookmark.author}
+              title={bookmark.title}
+              upvotes={bookmark.upvotes}
+              downvotes={bookmark.downvotes}
+              comments={bookmark.comments}
+              isLoggedIn={true}
+              isBookmarked={true}
+              onBookmark={handleBookmarkToggle}
+              layout="grid"
+            />
+          ))}
+        </div>
       ) : (
-        bookmarks.map(post => (
-          <PostCard
-            key={post.id}
-            {...post}
-            isBookmarked={true}
-            onBookmark={handleBookmark}
-            isLoggedIn={true}
-            layout="vertical"
-          />
-        ))
+        <p>No bookmarks found.</p>
       )}
     </div>
   );
 }
+
 

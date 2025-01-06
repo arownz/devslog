@@ -30,7 +30,7 @@ try {
         SELECT p.id, p.title, p.content, p.thumbnail, p.author, p.created_at, u.username, u.profile_image,
                COALESCE(SUM(CASE WHEN pv.vote_type = 'upvote' THEN 1 ELSE 0 END), 0) as upvotes,
                COALESCE(SUM(CASE WHEN pv.vote_type = 'downvote' THEN 1 ELSE 0 END), 0) as downvotes,
-               COUNT(DISTINCT c.id) as comment_count
+               COUNT(DISTINCT c.id) as comment
         FROM posts p
         JOIN usertblaccounts u ON p.user_id = u.id
         LEFT JOIN post_votes pv ON p.id = pv.post_id
@@ -53,7 +53,7 @@ try {
             'thumbnail' => base64_encode($row['thumbnail']),
             'upvotes' => $row['upvotes'],
             'downvotes' => $row['downvotes'],
-            'comments' => $row['comment_count'],
+            'comments' => $row['comment'],
             'username' => $row['username'],
             'profile_image' => base64_encode($row['profile_image'])
         );
