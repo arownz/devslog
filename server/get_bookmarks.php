@@ -57,9 +57,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             'author' => $row['author'],
             'created_at' => $row['created_at'],
             'thumbnail' => base64_encode($row['thumbnail']),
-            'upvotes' => $row['upvotes'],
-            'downvotes' => $row['downvotes'],
-            'comments' => $row['comments']
+            'upvotes' => intval($row['upvotes']),
+            'downvotes' => intval($row['downvotes']),
+            'comments' => intval($row['comments']),
         );
     }
 

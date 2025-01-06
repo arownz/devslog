@@ -12,20 +12,20 @@ import ReadingHistory from './history';
 
 const MyFeed = ({ posts }) => (
   <div>
-    <h1 className="text-3xl font-bold mb-6">My Feed</h1>
+    <h1 className="text-3xl font-bold mb-6">Public Feed</h1>
     {posts.length > 0 ? (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
         {posts.map((post) => (
           <PostCard
             key={post.id}
             id={post.id}
-            image={post.thumbnail || 'default-image-url.jpg'}
+            image={post.thumbnail}
             created_at={post.created_at}
             author={post.author}
             title={post.title}
-            upvotes={post.upvotes}
-            downvotes={post.downvotes}
-            comments={post.comments}
+            upvotes={parseInt(post.upvotes || 0)}
+            downvotes={parseInt(post.downvotes || 0)}
+            comments={parseInt(post.comments || 0)}
             isLoggedIn={true}
             layout="grid"
           />

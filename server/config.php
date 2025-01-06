@@ -13,4 +13,4 @@ if ($conn->connect_error) {
 }
 $conn->set_charset("utf8mb4");
 // Optionally, you can log the connection status for debugging purposes 
-// error_log("Connected successfully", 0); // 0 means the message is logged to the PHP error log
+error_log("Connected successfully", 0); // 0 means the message is logged to the PHP error log

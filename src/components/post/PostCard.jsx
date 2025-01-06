@@ -31,7 +31,6 @@ export default function PostCard({
     if (image && image !== 'default-image-url.jpg') {
       return `data:image/jpeg;base64,${image}`;
     }
-    return '/path/to/default/image.jpg'; // Replace with your actual default image path
   };
   const getLocalTime = (utcDateString) => {
     const date = new Date(utcDateString);
@@ -48,7 +47,6 @@ export default function PostCard({
       setShowLoginPrompt(true);
       return;
     }
-
     try {
       const response = await fetch('http://localhost/devslog/server/vote_post.php', {
         method: 'POST',
@@ -62,9 +60,11 @@ export default function PostCard({
       const data = await response.json();
 
       if (data.success) {
-        setLocalUpvotes(data.totalUpvotes);
-        setLocalDownvotes(data.totalDownvotes);
-        onVote(id, voteType, data.totalUpvotes, data.totalDownvotes);
+        setLocalUpvotes(data.upvotes);
+        setLocalDownvotes(data.downvotes);
+        if (onVote) {
+          onVote(id, voteType, data.upvotes, data.downvotes);
+        }
       } else {
         console.error('Vote failed:', data.message);
       }

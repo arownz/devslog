@@ -17,20 +17,18 @@ session_start();
 
 // Log the session data
 error_log("Session data: " . print_r($_SESSION, true));
-// Check if user is logged in
-if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['success' => false, 'message' => 'User not logged in']);
-    exit;
-}
-
-$user_id = $_SESSION['user_id'];
 
 try {
+    // Check database connection
+    if ($conn->connect_error) {
+        throw new Exception("Connection failed: " . $conn->connect_error);
+    }
+
     $stmt = $conn->prepare("
         SELECT p.id, p.title, p.content, p.thumbnail, p.author, p.created_at, u.username, u.profile_image,
                COALESCE(SUM(CASE WHEN pv.vote_type = 'upvote' THEN 1 ELSE 0 END), 0) as upvotes,
                COALESCE(SUM(CASE WHEN pv.vote_type = 'downvote' THEN 1 ELSE 0 END), 0) as downvotes,
-               COUNT(DISTINCT c.id) as comment
+               COUNT(DISTINCT c.id) as comments
         FROM posts p
         JOIN usertblaccounts u ON p.user_id = u.id
         LEFT JOIN post_votes pv ON p.id = pv.post_id
@@ -42,6 +40,10 @@ try {
 
     $result = $stmt->get_result();
 
+    if ($result->num_rows === 0) {
+        echo json_encode(['success' => true, 'posts' => []]);
+        exit;
+    }
     $posts = [];
     while ($row = $result->fetch_assoc()) {
         $posts[] = array(
@@ -50,12 +52,12 @@ try {
             'content' => $row['content'],
             'author' => $row['author'],
             'created_at' => $row['created_at'],
-            'thumbnail' => base64_encode($row['thumbnail']),
-            'upvotes' => $row['upvotes'],
-            'downvotes' => $row['downvotes'],
-            'comments' => $row['comment'],
+            'thumbnail' => $row['thumbnail'] ? base64_encode($row['thumbnail']) : null,
+            'upvotes' => intval($row['upvotes']),
+            'downvotes' => intval($row['downvotes']),
+            'comments' => intval($row['comments']),
             'username' => $row['username'],
-            'profile_image' => base64_encode($row['profile_image'])
+            'profile_image' => $row['profile_image'] ? base64_encode($row['profile_image']) : null
         );
     }
 
@@ -63,10 +65,14 @@ try {
 } catch (Exception $e) {
     error_log("Error in get_all_posts.php: " . $e->getMessage());
     echo json_encode(['success' => false, 'message' => 'Error fetching posts: ' . $e->getMessage()]);
+} finally {
+    if (isset($stmt)) {
+        $stmt->close();
+    }
+    if (isset($conn)) {
+        $conn->close();
+    }
 }
-
-$stmt->close();
-$conn->close();
 
 // At the end of the script:
 $output = ob_get_clean();
