@@ -75,7 +75,7 @@ export function AdminDashboard() {
       {
         label: 'Number of Posts per Month',
         data: Object.values(monthlyPosts),
-        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+        backgroundColor: 'rgba(9, 124, 255, 0.6)',
       },
     ],
   };

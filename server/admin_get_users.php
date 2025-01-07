@@ -18,12 +18,17 @@ if (!isset($_SESSION['admin_id'])) {
     exit;
 }
 
-$query = "SELECT id, username, email, created_at FROM usertblaccounts ORDER BY created_at DESC";
+$query = "SELECT id, username, email, profile_image, created_at FROM usertblaccounts ORDER BY created_at DESC";
 $result = $conn->query($query);
 
 $users = [];
 while ($row = $result->fetch_assoc()) {
+    // Encode the profile image as base64 if it exists
+    if (!is_null($row['profile_image'])) {
+        $row['profile_image'] = base64_encode($row['profile_image']);
+    }
     $users[] = $row;
 }
 
 echo json_encode($users);
+?>

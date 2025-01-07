@@ -1,30 +1,41 @@
 <?php
 require_once 'config.php';
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
 header("Access-Control-Allow-Origin: http://localhost:5173");
 header("Access-Control-Allow-Credentials: true");
-header("Content-Type: application/json");
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+header("Content-Type: application/json");
 header("Access-Control-Allow-Headers: Content-Type");
 
 session_start();
 
 // Check if the user is logged in as an admin
 if (!isset($_SESSION['admin_id'])) {
-    echo json_encode(['error' => 'Unauthorized']);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
     exit;
 }
 
-$data = json_decode(file_get_contents('php://input'), true);
+try {
+    // Assuming you are receiving data from a FormData object
+    $username = $_POST['username'];
+    $email = $_POST['email'];
+    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
-$username = $conn->real_escape_string($data['username']);
-$email = $conn->real_escape_string($data['email']);
-$password = password_hash($data['password'], PASSWORD_DEFAULT);
+    $profileImage = null;
+    if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === UPLOAD_ERR_OK) {
+        $profileImage = file_get_contents($_FILES['profile_image']['tmp_name']);
+    }
 
-$query = "INSERT INTO usertblaccounts (username, email, password) VALUES ('$username', '$email', '$password')";
+    $stmt = $conn->prepare("INSERT INTO usertblaccounts (username, email, password, profile_image) VALUES (?, ?, ?, ?)");
+    $stmt->bind_param("ssss", $username, $email, $password, $profileImage);
 
-if ($conn->query($query)) {
-    echo json_encode(['success' => true]);
-} else {
-    echo json_encode(['success' => false, 'error' => $conn->error]);
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Failed to create user']);
+    }
+} catch (Exception $e) {
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }

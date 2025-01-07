@@ -1,5 +1,7 @@
 <?php
 require_once 'config.php';
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
 header("Access-Control-Allow-Origin: http://localhost:5173");
 header("Access-Control-Allow-Credentials: true");
@@ -15,16 +17,35 @@ if (!isset($_SESSION['admin_id'])) {
     exit;
 }
 
-$data = json_decode(file_get_contents('php://input'), true);
+try {
+    // Ensure the required POST parameters are present
+    if (isset($_POST['id'], $_POST['username'], $_POST['email'])) {
+        $id = $conn->real_escape_string($_POST['id']);
+        $username = $conn->real_escape_string($_POST['username']);
+        $email = $conn->real_escape_string($_POST['email']);
+        $profile_image = null;
 
-$id = $conn->real_escape_string($data['id']);
-$username = $conn->real_escape_string($data['username']);
-$email = $conn->real_escape_string($data['email']);
+        // Handle file upload if provided
+        if (isset($_FILES['profile_image']) && $_FILES['profile_image']['tmp_name']) {
+            $profile_image = file_get_contents($_FILES['profile_image']['tmp_name']);
+        }
 
-$query = "UPDATE usertblaccounts SET username = '$username', email = '$email' WHERE id = $id";
+        $query = "UPDATE usertblaccounts SET username = ?, email = ?, profile_image = IFNULL(?, profile_image) WHERE id = ?";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param('sssi', $username, $email, $profile_image, $id);
 
-if ($conn->query($query)) {
-    echo json_encode(['success' => true]);
-} else {
-    echo json_encode(['success' => false, 'error' => $conn->error]);
+        if ($stmt->execute()) {
+            echo json_encode(['success' => true]);
+        } else {
+            echo json_encode(['success' => false, 'error' => $stmt->error]);
+        }
+
+        $stmt->close();
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Invalid parameters']);
+    }
+} catch (Exception $e) {
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }
+
+$conn->close();

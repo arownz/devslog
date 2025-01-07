@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, message } from 'antd';
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Table, Button, Modal, Form, Input, Upload, message } from 'antd';
+import { EditOutlined, DeleteOutlined, UploadOutlined } from '@ant-design/icons';
 
 const UsersManage = () => {
   const [users, setUsers] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [form] = Form.useForm();
+  const [fileList, setFileList] = useState([]); // For handling image upload
 
   useEffect(() => {
     fetchUsers();
@@ -24,11 +25,17 @@ const UsersManage = () => {
       if (data.error === 'Unauthorized') {
         console.error('Unauthorized access');
         message.error('You are not authorized to view this page');
-        // Redirect to login page or show unauthorized message
         return;
       }
       if (Array.isArray(data)) {
-        setUsers(data);
+        setUsers(
+          data.map((user) => ({
+            ...user,
+            profile_image: user.profile_image
+              ? `data:image/png;base64,${user.profile_image}`
+              : null,
+          }))
+        );
       } else {
         console.error('Received data is not an array:', data);
         setUsers([]);
@@ -47,15 +54,23 @@ const UsersManage = () => {
       form.setFieldsValue(user);
     } else {
       form.resetFields();
+      setFileList([]);
     }
   };
 
   const handleOk = () => {
     form.validateFields().then((values) => {
+      const formData = new FormData();
+      Object.keys(values).forEach((key) => {
+        formData.append(key, values[key]);
+      });
+      if (fileList.length > 0) {
+        formData.append('profile_image', fileList[0].originFileObj);
+      }
       if (editingUser) {
-        updateUser(values);
+        updateUser(formData);
       } else {
-        createUser(values);
+        createUser(formData);
       }
     });
   };
@@ -63,51 +78,57 @@ const UsersManage = () => {
   const handleCancel = () => {
     setIsModalVisible(false);
     setEditingUser(null);
+    setFileList([]);
   };
 
-  const createUser = async (values) => {
+  const createUser = async (formData) => {
     try {
       const response = await fetch('http://localhost/devslog/server/admin_create_user.php', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(values),
+        body: formData,
         credentials: 'include',
       });
-      const data = await response.json();
+      const data = await response.json(); // Parse JSON response
       if (data.success) {
         message.success('User created successfully');
         fetchUsers();
         setIsModalVisible(false);
       } else {
-        message.error('Failed to create user');
+        message.error(data.message || 'Failed to create user');
       }
     } catch (error) {
       console.error('Error creating user:', error);
       message.error('Failed to create user');
     }
   };
-
-  const updateUser = async (values) => {
+  
+  const updateUser = async (formData) => {
     try {
+      formData.append('id', editingUser.id); // Include user ID for updating
       const response = await fetch('http://localhost/devslog/server/admin_update_user.php', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...values, id: editingUser.id }),
-        credentials: 'include',
+        body: formData,
+        credentials: 'include', // Include cookies for authentication
       });
-      const data = await response.json();
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+  
+      const data = await response.json(); // Parse JSON response
       if (data.success) {
         message.success('User updated successfully');
         fetchUsers();
         setIsModalVisible(false);
       } else {
-        message.error('Failed to update user');
+        message.error(data.message || 'Failed to update user');
       }
     } catch (error) {
       console.error('Error updating user:', error);
       message.error('Failed to update user');
     }
   };
+  
 
   const deleteUser = async (id) => {
     try {
@@ -134,6 +155,9 @@ const UsersManage = () => {
     { title: 'ID', dataIndex: 'id', key: 'id' },
     { title: 'Username', dataIndex: 'username', key: 'username' },
     { title: 'Email', dataIndex: 'email', key: 'email' },
+    { title: 'Profile Image', key: 'profile_image', render: (_, record) => (
+      record.profile_image ? <img src={record.profile_image} alt="Profile" style={{ width: 50, height: 50, borderRadius: '50%' }} /> : 'No Image'
+    ) },
     { title: 'Created At', dataIndex: 'created_at', key: 'created_at' },
     {
       title: 'Actions',
@@ -148,7 +172,7 @@ const UsersManage = () => {
   ];
 
   return (
-    <div className="pt-20 px-4"> {/* Added padding-top and padding-x */}
+    <div className="pt-20 px-4">
       <h1 className="text-2xl font-bold mb-4">Manage Users</h1>
       <Button onClick={() => showModal()} type="primary" style={{ marginBottom: 16 }}>
         Add New User
@@ -169,6 +193,16 @@ const UsersManage = () => {
           </Form.Item>
           <Form.Item name="password" label="Password" rules={[{ required: !editingUser }]}>
             <Input.Password />
+          </Form.Item>
+          <Form.Item label="Profile Image">
+            <Upload
+              beforeUpload={() => false}
+              fileList={fileList}
+              onChange={({ fileList }) => setFileList(fileList)}
+              maxCount={1}
+            >
+              <Button icon={<UploadOutlined />}>Upload</Button>
+            </Upload>
           </Form.Item>
         </Form>
       </Modal>
