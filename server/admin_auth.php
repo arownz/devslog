@@ -11,6 +11,8 @@ header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Credentials: true");
 
+// Start session at the beginning
+session_start();
 // Handle preflight OPTIONS request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
@@ -21,6 +23,7 @@ header("Content-Type: application/json");
 
 // Debug: Log the request method
 error_log("Request method: " . $_SERVER['REQUEST_METHOD']);
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $input = file_get_contents('php://input');
 
@@ -30,6 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Debug: Log the decoded data
     error_log("Decoded data: " . print_r($data, true));
+
     if (isset($data->action) && $data->action === 'login') {
         $email = $conn->real_escape_string($data->email);
         $password = $data->password;
@@ -40,6 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Debug: Log the SQL query and result
         error_log("SQL query: " . $sql);
         error_log("Query result: " . print_r($result, true));
+
         if ($result === false) {
             echo json_encode(["success" => false, "message" => "Database error: " . $conn->error]);
             exit;
@@ -48,13 +53,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($result->num_rows > 0) {
             $admin = $result->fetch_assoc();
             if (password_verify($password, $admin['password'])) {
-                echo json_encode(["success" => true, "message" => "Login successful", "admin" => ["id" => $admin['id'], "email" => $admin['email']]]);
+                $_SESSION['admin_id'] = $admin['id'];
+                $_SESSION['admin_email'] = $admin['email'];
+                echo json_encode([
+                    "success" => true, 
+                    "message" => "Login successful", 
+                    "admin" => ["id" => $admin['id'], "email" => $admin['email']]
+                ]);
+                // Debug: Log successful login
+                error_log("Admin logged in successfully. Session data: " . print_r($_SESSION, true));
             } else {
                 error_log("Password verification failed for email: $email");
                 echo json_encode(["success" => false, "message" => "Invalid password"]);
             }
         } else {
-            error_log(message: "Email not found: $email");
+            error_log("Email not found: $email");
             echo json_encode(["success" => false, "message" => "Email not found"]);
         }
     } else {

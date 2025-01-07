@@ -41,7 +41,7 @@ export function AdminSignIn() {
       console.error('Error:', error);
       setError(`An error occurred: ${error.message}. Please check your server connection and try again.`);
     }
-  };  
+  };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

@@ -1,13 +1,11 @@
 <?php
+require_once 'config.php';
 // Turn off error reporting for production
 error_reporting(0);
 ini_set('display_errors', 0);
 
 // Start output buffering
 ob_start();
-require_once 'config.php';
-
-session_start();
 
 header("Access-Control-Allow-Origin: http://localhost:5173");
 header("Access-Control-Allow-Credentials: true");
@@ -15,6 +13,7 @@ header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json");
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
 
+session_start();
 
 // Get the content type of the request
 $contentType = isset($_SERVER["CONTENT_TYPE"]) ? trim($_SERVER["CONTENT_TYPE"]) : '';

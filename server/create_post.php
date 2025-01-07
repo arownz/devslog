@@ -1,5 +1,4 @@
 <?php
-session_start();
 require_once 'config.php';
 
 // Add this at the beginning of the file
@@ -9,6 +8,8 @@ header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Credentials: true");
 header("Content-Type: application/json");
+
+session_start();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!isset($_SESSION['user_id'])) {

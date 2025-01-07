@@ -1,11 +1,11 @@
 <?php
+require_once 'config.php';
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 ini_set('log_errors', 1);
 ini_set('error_log', 'C:/xampp/htdocs/devslog/server/php_errors.log');
 
 session_start();
-require_once 'config.php';
 
 header("Access-Control-Allow-Origin: http://localhost:5173");
 header("Access-Control-Allow-Credentials: true");
