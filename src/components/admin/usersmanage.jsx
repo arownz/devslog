@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, Upload, message } from 'antd';
+import { Table, Button, Modal, Form, Input, Upload, message, Image } from 'antd';
 import { EditOutlined, DeleteOutlined, UploadOutlined } from '@ant-design/icons';
 
 const UsersManage = () => {
@@ -101,7 +101,7 @@ const UsersManage = () => {
       message.error('Failed to create user');
     }
   };
-  
+
   const updateUser = async (formData) => {
     try {
       formData.append('id', editingUser.id); // Include user ID for updating
@@ -110,11 +110,11 @@ const UsersManage = () => {
         body: formData,
         credentials: 'include', // Include cookies for authentication
       });
-  
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-  
+
       const data = await response.json(); // Parse JSON response
       if (data.success) {
         message.success('User updated successfully');
@@ -128,7 +128,7 @@ const UsersManage = () => {
       message.error('Failed to update user');
     }
   };
-  
+
 
   const deleteUser = async (id) => {
     try {
@@ -155,9 +155,19 @@ const UsersManage = () => {
     { title: 'ID', dataIndex: 'id', key: 'id' },
     { title: 'Username', dataIndex: 'username', key: 'username' },
     { title: 'Email', dataIndex: 'email', key: 'email' },
-    { title: 'Profile Image', key: 'profile_image', render: (_, record) => (
-      record.profile_image ? <img src={record.profile_image} alt="Profile" style={{ width: 50, height: 50, borderRadius: '50%' }} /> : 'No Image'
-    ) },
+    {
+      title: 'Profile Image',
+      key: 'profile_image',
+      render: (_, record) => (
+        record.profile_image ? (
+          <Image
+            src={record.profile_image}
+            alt="Profile"
+            style={{ width: 50, height: 50, borderRadius: '50%' }}
+          />
+        ) : 'No Image'
+      )
+    },
     { title: 'Created At', dataIndex: 'created_at', key: 'created_at' },
     {
       title: 'Actions',
