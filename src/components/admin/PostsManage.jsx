@@ -28,7 +28,6 @@ const PostsManage = () => {
       if (data.error === 'Unauthorized') {
         console.error('Unauthorized access');
         message.error('You are not authorized to view this page');
-        // Redirect to login page or show unauthorized message
         return;
       }
 
@@ -129,21 +128,30 @@ const PostsManage = () => {
       title: 'ID',
       dataIndex: 'id',
       key: 'id',
+      width: 50,
     },
     {
       title: 'Title',
       dataIndex: 'title',
       key: 'title',
+      width: 130,
     },
     {
       title: 'Content',
       dataIndex: 'content',
       key: 'content',
+      render: (content) => {
+        const truncatedContent = content.length > 100 ? content.substring(0, 80) + '...' : content;
+        return (
+          <div title={content}>{truncatedContent}</div>
+        );
+      },
     },
     {
       title: 'Thumbnail',
       dataIndex: 'thumbnail',
       key: 'thumbnail',
+      width: 100,
       render: (thumbnail) => (
         <Image
           src={`data:image/jpeg;base64,${thumbnail}`}
@@ -155,21 +163,25 @@ const PostsManage = () => {
     {
       title: 'Author',
       dataIndex: 'author',
-      key: 'author'
+      key: 'author',
+      width: 100,
     },
     {
       title: 'Created At',
       dataIndex: 'created_at',
-      key: 'created_at'
+      key: 'created_at',
+      width: 150,
     },
     {
       title: 'Updated At',
       dataIndex: 'updated_at',
-      key: 'updated_at'
+      key: 'updated_at',
+      width: 150,
     },
     {
       title: 'Actions',
       key: 'actions',
+      width: 100,
       render: (_, record) => (
         <>
           <Button icon={<EditOutlined />} onClick={() => showEditModal(record)} />
@@ -179,10 +191,16 @@ const PostsManage = () => {
     },
   ];
 
+
   return (
     <div className="pt-20 px-4"> {/* Added padding-top and padding-x */}
       <h1 className="text-2xl font-bold mb-4">Manage Posts</h1>
-      <Table columns={columns} dataSource={posts} rowKey="id" />
+      <Table
+        columns={columns}
+        dataSource={posts}
+        rowKey="id"
+        scroll={{ x: 'max-content' }} // Enable horizontal scroll
+      />
 
       <Modal
         title="Edit Post"
@@ -239,4 +257,3 @@ const PostsManage = () => {
 };
 
 export default PostsManage;
-

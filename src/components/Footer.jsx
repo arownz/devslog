@@ -9,7 +9,7 @@ export default function Footer() {
             <h2 className="text-2xl font-bold mb-4">Explore the site</h2>
             <nav className="flex flex-col space-y-2">
               <Link to="/" className="hover:text-green-400 transition duration-300">Home</Link>
-              <Link to="/posts" className="hover:text-green-400 transition duration-300">Forum</Link>
+              {/* <Link to="/posts" className="hover:text-green-400 transition duration-300">Forum</Link> */}
               <Link to="/about" className="hover:text-green-400 transition duration-300">About Us?</Link>
             </nav>
           </div>

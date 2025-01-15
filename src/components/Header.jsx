@@ -135,7 +135,7 @@ export default function Header() {
         {/* Guest Header */}
         {!isLoggedIn && (
           <nav className="flex space-x-6 text-lg">
-            <Link to="/posts" className="text-gray-700 hover:text-green-700 transition-colors duration-200">Forum</Link>
+            {/* <Link to="/posts" className="text-gray-700 hover:text-green-700 transition-colors duration-200">Forum</Link> */}
             <Link to="/about" className="text-gray-700 hover:text-green-700 transition-colors duration-200">About Us?</Link>
           </nav>
         )}
