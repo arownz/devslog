@@ -1,6 +1,8 @@
 <?php
+
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
+
 define('DB_HOST', 'localhost');  // Note the port number here
 define('DB_USER', 'root');
 define('DB_PASS', '');

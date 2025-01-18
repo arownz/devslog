@@ -32,15 +32,15 @@
     "@types/react": "^18.2.8",
     "@types/react-dom": "^18.2.4",
     "@vitejs/plugin-react": "^4.0.0",
-    "autoprefixer": "^10.4.14",
+    "autoprefixer": "^10.4.20",
     "eslint": "^8.41.0",
     "eslint-plugin-react": "^7.32.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.1",
     "globals": "^13.20.0",
     "jsdom": "^25.0.1",
-    "postcss": "^8.4.23",
-    "tailwindcss": "^3.3.2",
+    "postcss": "^8.5.1",
+    "tailwindcss": "^3.4.17",
     "vite": "^4.3.9",
     "vitest": "^0.31.1"
   }

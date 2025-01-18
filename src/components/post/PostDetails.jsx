@@ -49,6 +49,27 @@ export default function PostDetails({ postId, onClose, onVote, scrollToComments 
         }
     }, [postId, scrollToComments, fetchPostDetails]); // Add fetchPostDetails to the dependency array
 
+    useEffect(() => {
+        const recordHistory = async () => {
+            if (!postId) return;
+
+            try {
+                await fetch('http://localhost/devslog/server/add_to_history.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `post_id=${postId}`,
+                    credentials: 'include'
+                });
+            } catch (error) {
+                console.error('Error recording history:', error);
+            }
+        };
+
+        recordHistory();
+    }, [postId]);
+
     async function checkBookmarkStatus() {
         try {
             const response = await fetch(`http://localhost/devslog/server/check_bookmark.php?post_id=${postId}`, {
@@ -164,14 +185,14 @@ export default function PostDetails({ postId, onClose, onVote, scrollToComments 
                 <div className="p-6 md:p-8 max-h-[90vh] overflow-y-auto">
                     <div className="flex flex-col md:flex-row">
                         <div className="flex flex-row md:flex-col items-center md:items-start mb-4 md:mb-0 md:mr-6 space-x-4 md:space-x-0 md:space-y-2">
-                            <button 
+                            <button
                                 onClick={() => handleVote('upvote')}
                                 className={`focus:outline-none ${userVote === 'upvote' ? 'text-green-500' : 'text-gray-400 hover:text-green-500'}`}
                             >
                                 <FaArrowUp size={24} />
                             </button>
                             <span className="font-bold text-lg">{post.upvotes - post.downvotes}</span>
-                            <button 
+                            <button
                                 onClick={() => handleVote('downvote')}
                                 className={`focus:outline-none ${userVote === 'downvote' ? 'text-red-500' : 'text-gray-400 hover:text-red-500'}`}
                             >
@@ -229,8 +250,8 @@ export default function PostDetails({ postId, onClose, onVote, scrollToComments 
                                 <div className="flex-shrink-0 mr-4">
                                     {comment.profile_image ? (
                                         <img
-                                            src={comment.profile_image.startsWith('data:image') 
-                                                ? comment.profile_image 
+                                            src={comment.profile_image.startsWith('data:image')
+                                                ? comment.profile_image
                                                 : `data:image/jpeg;base64,${comment.profile_image}`}
                                             alt={`${comment.username}'s profile`}
                                             className="w-10 h-10 rounded-full object-cover"
@@ -283,4 +304,3 @@ PostDetails.propTypes = {
     onVote: PropTypes.func.isRequired,
     scrollToComments: PropTypes.bool
 };
-
