@@ -18,7 +18,9 @@ if (!isset($_SESSION['admin_id'])) {
     exit;
 }   
 
-$query = "SELECT id, title, content, author, created_at, updated_at, thumbnail FROM posts ORDER BY updated_at DESC";
+$query = "SELECT p.*, u.id as user_id FROM posts p 
+          JOIN usertblaccounts u ON p.user_id = u.id 
+          ORDER BY p.created_at DESC";
 $result = $conn->query($query);
 
 $posts = [];

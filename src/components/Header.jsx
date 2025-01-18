@@ -1,9 +1,12 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
+import { Modal, message } from 'antd';
+import { DeleteOutlined } from '@ant-design/icons';
 import AddPost from "./post/AddPost";
+import PostDetails from "./post/PostDetails";
 
 export default function Header() {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const { isDarkMode, toggleDarkMode } = useState ();
   const [showModal, setShowModal] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
@@ -13,6 +16,10 @@ export default function Header() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showAddPostModal, setShowAddPostModal] = useState(false);
+  const [showPostModal, setShowPostModal] = useState(false);
+  const [selectedPostId, setSelectedPostId] = useState(null);
+  const [showRejectionModal, setShowRejectionModal] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState('');
   const notificationRef = useRef(null);
   const navigate = useNavigate();
 
@@ -47,20 +54,26 @@ export default function Header() {
     }
   }, []);
 
-  useEffect(() => {
-    // Simulating fetching notifications
-    const fetchNotifications = () => {
-      const mockNotifications = [
-        { id: 1, message: "Notify 1", read: false },
-        { id: 2, message: "Notify 2", read: false },
-        { id: 3, message: "Notify 3", read: true },
-      ];
-      setNotifications(mockNotifications);
-      setUnreadCount(mockNotifications.filter(n => !n.read).length);
-    };
+  const fetchNotifications = async () => {
+    try {
+      const response = await fetch('http://localhost/devslog/server/get_notifications.php', {
+        credentials: 'include'
+      });
+      const data = await response.json();
+      if (data.success) {
+        setNotifications(data.notifications);
+        setUnreadCount(data.notifications.filter(n => !n.read).length);
+      }
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+    }
+  };
 
+  useEffect(() => {
     if (isLoggedIn) {
       fetchNotifications();
+      const interval = setInterval(fetchNotifications, 30000);
+      return () => clearInterval(interval);
     }
   }, [isLoggedIn]);
 
@@ -81,18 +94,49 @@ export default function Header() {
     setShowNotifications(!showNotifications);
   };
 
-  const handleNotificationClick = (id) => {
-    // Mark notification as read
-    setNotifications(notifications.map(n => n.id === id ? { ...n, read: true } : n));
-    setUnreadCount(prev => prev - 1);
-    // Handle notification click (e.g., navigate to relevant page)
-    console.log(`Clicked notification ${id}`);
+  const handleNotificationClick = async (notification) => {
+    if (notification.type === 'rejected') {
+      setRejectionReason(notification.admin_message || 'No specific reason provided');
+      setShowRejectionModal(true);
+    } else if (notification.post_id) {
+      setSelectedPostId(notification.post_id);
+      setShowPostModal(true);
+    }
+
+    if (!notification.read) {
+      try {
+        await fetch('http://localhost/devslog/server/mark_notification_read.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ notification_id: notification.id }),
+          credentials: 'include'
+        });
+        fetchNotifications();
+      } catch (error) {
+        console.error('Error marking notification as read:', error);
+      }
+    }
   };
 
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-    // Implement the actual dark mode logic here
+  const handleDeleteNotification = async (e, notificationId) => {
+    e.stopPropagation();
+    try {
+      const response = await fetch('http://localhost/devslog/server/delete_notification.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notification_id: notificationId }),
+        credentials: 'include'
+      });
+      const data = await response.json();
+      if (data.success) {
+        fetchNotifications();
+        message.success('Notification deleted');
+      }
+    } catch (error) {
+      message.error('Failed to delete notification');
+    }
   };
+
 
   const handleSignInClick = () => {
     setShowModal(true);
@@ -121,8 +165,9 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-white shadow-md fixed top-0 left-0 right-0 z-50 h-16">
-          <div className="container mx-auto px-4 h-full flex items-center justify-between">
+    <header className={`fixed top-0 left-0 right-0 z-50 h-16 shadow-md ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
+      }`}>
+      <div className="container mx-auto px-4 h-full flex items-center justify-between">
         <Link to={getDashboardLink()} className="flex items-center text-2xl font-bold text-green-700 mr-8">
           <img
             src="https://cdn.builder.io/api/v1/image/assets/TEMP/1b7534d8e2e8aebb42d2c416dac3979c0a09e9a096b9a214a7d1e6af7326f39a?placeholderIfAbsent=true&apiKey=b3b06d4cff934296b9a04a1b4e7061de"
@@ -201,19 +246,36 @@ export default function Header() {
                 )}
               </button>
               {showNotifications && (
-                <div className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg overflow-hidden z-20">
+                <div className={`absolute right-0 mt-2 w-80 rounded-md shadow-lg overflow-hidden z-20 ${isDarkMode ? 'bg-gray-700' : 'bg-white'
+                  }`}>
                   <div className="py-2">
-                    {notifications.map((notification) => (
-                      <div
-                        key={notification.id}
-                        className={`px-4 py-3 hover:bg-gray-100 cursor-pointer ${!notification.read ? 'bg-blue-50' : ''}`}
-                        onClick={() => handleNotificationClick(notification.id)}
-                      >
-                        <p className={`text-sm ${!notification.read ? 'font-semibold' : ''}`}>
-                          {notification.message}
-                        </p>
+                    {notifications.length > 0 ? (
+                      notifications.map((notification) => (
+                        <div
+                          key={notification.id}
+                          className={`px-4 py-3 flex justify-between items-start cursor-pointer
+                ${!notification.read
+                              ? isDarkMode ? 'bg-blue-900' : 'bg-blue-50'
+                              : isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
+                            }
+              `}
+                          onClick={() => handleNotificationClick(notification)}
+                        >
+                          <p className={`text-sm flex-1 ${!notification.read ? 'font-semibold' : ''} 
+                ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>
+                            {notification.message}
+                          </p>
+                          <DeleteOutlined
+                            className={`ml-2 ${isDarkMode ? 'text-gray-400 hover:text-red-400' : 'text-gray-500 hover:text-red-500'}`}
+                            onClick={(e) => handleDeleteNotification(e, notification.id)}
+                          />
+                        </div>
+                      ))
+                    ) : (
+                      <div className={`px-4 py-3 text-center ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                        No notifications
                       </div>
-                    ))}
+                    )}
                   </div>
                 </div>
               )}
@@ -311,8 +373,30 @@ export default function Header() {
       {showAddPostModal && (
         <AddPost onClose={() => setShowAddPostModal(false)} />
       )}
+      <Modal
+        title="Post Rejected"
+        open={showRejectionModal}
+        onOk={() => setShowRejectionModal(false)}
+        onCancel={() => setShowRejectionModal(false)}
+        className={isDarkMode ? 'dark-theme' : ''}
+      >
+        <p className="text-red-500 font-medium mb-2">
+          This post has been rejected by the administrator.
+        </p>
+        <p className={isDarkMode ? 'text-gray-300' : 'text-gray-700'}>
+          {rejectionReason}
+        </p>
+      </Modal>
+
+      {showPostModal && (
+        <PostDetails
+          postId={selectedPostId}
+          onClose={() => {
+            setShowPostModal(false);
+            setSelectedPostId(null);
+          }}
+        />
+      )}
     </header>
   );
 }
-
-

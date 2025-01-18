@@ -18,38 +18,38 @@ export function SignInForm() {
         e.preventDefault();
         setError(""); // Clear any previous errors
         try {
-          const response = await fetch('http://localhost/devslog/server/user_auth.php', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ ...formData, action: 'login' }),
-            credentials: 'include', // This is crucial for sending cookies
-          });
+            const response = await fetch('http://localhost/devslog/server/user_auth.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ ...formData, action: 'login' }),
+                credentials: 'include', // This is crucial for sending cookies
+            });
 
-        const text = await response.text(); // Get the raw response text
-        console.log("Raw response:", text); // Log the raw response
+            const text = await response.text(); // Get the raw response text
+            console.log("Raw response:", text); // Log the raw response
 
-        let data;
-        try {
-          data = JSON.parse(text); // Try to parse the response as JSON
+            let data;
+            try {
+                data = JSON.parse(text); // Try to parse the response as JSON
+            } catch (error) {
+                console.error('Error parsing JSON:', error);
+                setError('Invalid response from server. Please check server logs.');
+                return;
+            }
+
+            if (data.success) {
+                sessionStorage.setItem('user', JSON.stringify(data.user));
+                navigate('/user-dashboard');
+            } else {
+                setError(data.message || "Login failed");
+            }
         } catch (error) {
-          console.error('Error parsing JSON:', error);
-          setError('Invalid response from server. Please check server logs.');
-          return;
+            console.error('Error:', error);
+            setError("An error occurred. Please try again.");
         }
-
-        if (data.success) {
-            sessionStorage.setItem('user', JSON.stringify(data.user));
-            navigate('/user-dashboard');
-          } else {
-            setError(data.message || "Login failed");
-          }
-        } catch (error) {
-          console.error('Error:', error);
-          setError("An error occurred. Please try again.");
-        }
-      };
+    };
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });

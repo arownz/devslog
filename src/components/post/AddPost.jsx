@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import styles from './AddPost.module.css';
+import { message } from 'antd';
 
 export default function AddPost({ onClose }) {
     const [title, setTitle] = useState('');
@@ -11,9 +12,6 @@ export default function AddPost({ onClose }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        // When submitting the post, don't include the creation time.
-        // The server will handle setting the correct UTC time.
         const formData = new FormData();
         formData.append('title', title);
         formData.append('content', content);
@@ -26,25 +24,16 @@ export default function AddPost({ onClose }) {
                 credentials: 'include',
             });
 
-            const responseText = await response.text();
-            console.log('Raw server response:', responseText);
-
-            try {
-                const data = JSON.parse(responseText);
-                console.log('Parsed server response:', data);
-
-                if (data.success) {
-                    console.log('Post created successfully');
-                    onClose();
-                } else {
-                    console.error('Failed to create post:', data.message);
-                }
-            } catch (jsonError) {
-                console.error('Error parsing JSON:', jsonError);
-                console.error('Raw response:', responseText);
+            const data = await response.json();
+            if (data.success) {
+                message.success('Post submitted for review');
+                onClose();
+            } else {
+                message.error(data.message || 'Failed to create post');
             }
         } catch (error) {
-            console.error('Fetch Error:', error);
+            console.error('Error:', error);
+            message.error('Failed to create post');
         }
     };
 
@@ -141,4 +130,3 @@ export default function AddPost({ onClose }) {
 AddPost.propTypes = {
     onClose: PropTypes.func.isRequired,
 };
-

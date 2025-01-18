@@ -24,8 +24,9 @@ try {
         throw new Exception("Connection failed: " . $conn->connect_error);
     }
 
+    // Add status check to only show approved posts
     $stmt = $conn->prepare("
-        SELECT p.id, p.title, p.content, p.thumbnail, p.author, p.created_at, u.username, u.profile_image,
+        SELECT p.*, u.username, u.profile_image,
                COALESCE(SUM(CASE WHEN pv.vote_type = 'upvote' THEN 1 ELSE 0 END), 0) as upvotes,
                COALESCE(SUM(CASE WHEN pv.vote_type = 'downvote' THEN 1 ELSE 0 END), 0) as downvotes,
                COUNT(DISTINCT c.id) as comments
@@ -33,6 +34,7 @@ try {
         JOIN usertblaccounts u ON p.user_id = u.id
         LEFT JOIN post_votes pv ON p.id = pv.post_id
         LEFT JOIN comments c ON p.id = c.post_id
+        WHERE p.status = 'approved'  -- Only show approved posts
         GROUP BY p.id
         ORDER BY p.created_at DESC
     ");
@@ -83,4 +85,3 @@ if (json_decode($output) === null) {
     // If it's valid JSON, return it as is
     echo $output;
 }
-

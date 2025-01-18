@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, message, Image } from 'antd';
+import { Table, Button, Modal, Form, Input, message, Image, Space, Tag } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -104,13 +104,13 @@ const PostsManage = () => {
         body: JSON.stringify({ id: postId }),
         credentials: 'include',
       });
-  
+
       const responseText = await response.text(); // Get raw response text
       console.log('Response Text:', responseText); // Debug log
-  
+
       // Attempt to parse the response as JSON.
       const data = JSON.parse(responseText);
-  
+
       if (data.success) {
         message.success('Post deleted successfully');
         fetchPosts(); // Refresh posts after deletion.
@@ -122,7 +122,47 @@ const PostsManage = () => {
       message.error('Failed to delete post: ' + error.message);
     }
   };
-  
+
+  const handleUpdateStatus = async (postId, userId, status) => {
+    try {
+      let adminMessage = '';
+      if (status === 'rejected') {
+        const { value: message } = await Modal.confirm({
+          title: 'Rejection Reason',
+          content: (
+            <Input.TextArea
+              placeholder="Enter reason for rejection"
+              onChange={(e) => adminMessage = e.target.value}
+            />
+          ),
+          okText: 'Reject',
+          cancelText: 'Cancel',
+        });
+        if (!message) return;
+      }
+
+      const response = await fetch('http://localhost/devslog/server/update_post_status.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          post_id: postId,
+          user_id: userId,
+          status,
+          admin_message: adminMessage
+        }),
+        credentials: 'include'
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        message.success(`Post ${status} successfully`);
+        fetchPosts();
+      }
+    } catch (error) {
+      message.error('Failed to update post status');
+    }
+  };
+
   const columns = [
     {
       title: 'ID',
@@ -141,7 +181,7 @@ const PostsManage = () => {
       dataIndex: 'content',
       key: 'content',
       render: (content) => {
-        const truncatedContent = content.length > 100 ? content.substring(0, 80) + '...' : content;
+        const truncatedContent = content.length > 20 ? content.substring(0, 80) + '...' : content;
         return (
           <div title={content}>{truncatedContent}</div>
         );
@@ -177,6 +217,33 @@ const PostsManage = () => {
       dataIndex: 'updated_at',
       key: 'updated_at',
       width: 150,
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      render: (status, record) => (
+        status === 'pending' ? (
+          <Space>
+            <Button
+              type="primary"
+              onClick={() => handleUpdateStatus(record.id, record.user_id, 'approved')}
+            >
+              Approve
+            </Button>
+            <Button
+              danger
+              onClick={() => handleUpdateStatus(record.id, record.user_id, 'rejected')}
+            >
+              Reject
+            </Button>
+          </Space>
+        ) : (
+          <Tag color={status === 'approved' ? 'green' : 'red'}>
+            {(status || 'pending').charAt(0).toUpperCase() + (status || 'pending').slice(1)}
+          </Tag>
+        )
+      ),
     },
     {
       title: 'Actions',
