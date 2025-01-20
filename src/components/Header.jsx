@@ -6,13 +6,14 @@ import AddPost from "./post/AddPost";
 import PostDetails from "./post/PostDetails";
 
 export default function Header() {
-  const { isDarkMode, toggleDarkMode } = useState ();
+  const { isDarkMode, toggleDarkMode } = useState();
   const [showModal, setShowModal] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [notifications, setNotifications] = useState([]);
+  const [notificationType, setNotificationType] = useState(null);
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showAddPostModal, setShowAddPostModal] = useState(false);
@@ -55,14 +56,22 @@ export default function Header() {
   }, []);
 
   const fetchNotifications = async () => {
+    if (!isLoggedIn) return;
+
     try {
-      const response = await fetch('http://localhost/devslog/server/get_notifications.php', {
+      const endpoint = isAdmin
+        ? 'http://localhost/devslog/server/get_admin_notifications.php'
+        : 'http://localhost/devslog/server/get_notifications.php';
+
+      const response = await fetch(endpoint, {
         credentials: 'include'
       });
       const data = await response.json();
+
       if (data.success) {
         setNotifications(data.notifications);
         setUnreadCount(data.notifications.filter(n => !n.read).length);
+        setNotificationType(isAdmin ? 'admin' : 'user');
       }
     } catch (error) {
       console.error('Error fetching notifications:', error);
@@ -75,7 +84,7 @@ export default function Header() {
       const interval = setInterval(fetchNotifications, 30000);
       return () => clearInterval(interval);
     }
-  }, [isLoggedIn]);
+  }, [isLoggedIn, isAdmin]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -95,17 +104,26 @@ export default function Header() {
   };
 
   const handleNotificationClick = async (notification) => {
-    if (notification.type === 'rejected') {
-      setRejectionReason(notification.admin_message || 'No specific reason provided');
-      setShowRejectionModal(true);
-    } else if (notification.post_id) {
+    if (notificationType === 'admin') {
       setSelectedPostId(notification.post_id);
       setShowPostModal(true);
+    } else {
+      if (notification.type === 'rejected') {
+        setRejectionReason(notification.admin_message || 'No specific reason provided');
+        setShowRejectionModal(true);
+      } else if (notification.post_id) {
+        setSelectedPostId(notification.post_id);
+        setShowPostModal(true);
+      }
     }
 
     if (!notification.read) {
       try {
-        await fetch('http://localhost/devslog/server/mark_notification_read.php', {
+        const endpoint = notificationType === 'admin'
+          ? 'http://localhost/devslog/server/mark_admin_notification_read.php'
+          : 'http://localhost/devslog/server/mark_notification_read.php';
+
+        await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ notification_id: notification.id }),
@@ -121,7 +139,11 @@ export default function Header() {
   const handleDeleteNotification = async (e, notificationId) => {
     e.stopPropagation();
     try {
-      const response = await fetch('http://localhost/devslog/server/delete_notification.php', {
+      const endpoint = notificationType === 'admin'
+        ? 'http://localhost/devslog/server/delete_admin_notification.php'
+        : 'http://localhost/devslog/server/delete_notification.php';
+
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ notification_id: notificationId }),
@@ -162,6 +184,19 @@ export default function Header() {
 
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
+  };
+
+  const renderNotificationContent = (notification) => {
+    if (isAdmin) {
+      return (
+        <div className="flex flex-col">
+          <p className="font-medium">{notification.username}&apos;s Post</p>
+          <p className="text-sm">{notification.title}</p>
+          <p className="text-xs text-gray-500">{notification.message}</p>
+        </div>
+      );
+    }
+    return <p>{notification.message}</p>;
   };
 
   return (
@@ -246,39 +281,40 @@ export default function Header() {
                 )}
               </button>
               {showNotifications && (
-                <div className={`absolute right-0 mt-2 w-80 rounded-md shadow-lg overflow-hidden z-20 ${isDarkMode ? 'bg-gray-700' : 'bg-white'
+                <div className={`absolute right-0 mt-2 w-96 rounded-md shadow-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'
                   }`}>
-                  <div className="py-2">
+                  <div className="py-2 max-h-96 overflow-y-auto">
                     {notifications.length > 0 ? (
                       notifications.map((notification) => (
                         <div
                           key={notification.id}
-                          className={`px-4 py-3 flex justify-between items-start cursor-pointer
-                ${!notification.read
-                              ? isDarkMode ? 'bg-blue-900' : 'bg-blue-50'
-                              : isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
-                            }
-              `}
+                          className={`px-4 py-3 flex justify-between items-start cursor-pointer ${!notification.read
+                            ? isDarkMode ? 'bg-blue-900' : 'bg-blue-50'
+                            : isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
+                            }`}
                           onClick={() => handleNotificationClick(notification)}
                         >
-                          <p className={`text-sm flex-1 ${!notification.read ? 'font-semibold' : ''} 
-                ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>
-                            {notification.message}
-                          </p>
+                          <div className="flex-1 pr-4">
+                            {renderNotificationContent(notification)}
+                            <p className="text-xs text-gray-500 mt-1">
+                              {new Date(notification.created_at).toLocaleString()}
+                            </p>
+                          </div>
                           <DeleteOutlined
-                            className={`ml-2 ${isDarkMode ? 'text-gray-400 hover:text-red-400' : 'text-gray-500 hover:text-red-500'}`}
+                            className={`text-gray-400 hover:text-red-500`}
                             onClick={(e) => handleDeleteNotification(e, notification.id)}
                           />
                         </div>
                       ))
                     ) : (
-                      <div className={`px-4 py-3 text-center ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      <div className="px-4 py-3 text-center text-gray-500">
                         No notifications
                       </div>
                     )}
                   </div>
                 </div>
               )}
+
             </div>
           )}
           {isLoggedIn ? (

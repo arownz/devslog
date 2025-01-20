@@ -32,13 +32,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $created_at = gmdate('Y-m-d H:i:s');  // Use gmdate to ensure UTC time
 
-    $stmt = $conn->prepare("INSERT INTO posts (user_id, title, content, thumbnail, author, created_at) VALUES (?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("isssss", $user_id, $title, $content, $thumbnail, $author, $created_at);
+    try {
+        $conn->begin_transaction();
 
-    if ($stmt->execute()) {
-        echo json_encode(['success' => true, 'message' => 'Post created successfully']);
-    } else {
-        echo json_encode(['success' => false, 'message' => 'Failed to create post']);
+        // Insert post
+        $stmt = $conn->prepare("INSERT INTO posts (user_id, title, content, thumbnail, author, status) VALUES (?, ?, ?, ?, ?, 'pending')");
+        $stmt->bind_param("issss", $user_id, $title, $content, $thumbnail, $author);
+        $stmt->execute();
+        $post_id = $conn->insert_id;
+
+        // Create user notification
+        $user_notification = "Your post has been submitted for review. Please allow up to 24 hours for the review process to be completed.";
+        $stmt = $conn->prepare("INSERT INTO notifications (user_id, type, message, post_id) VALUES (?, 'pending', ?, ?)");
+        $stmt->bind_param("isi", $user_id, $user_notification, $post_id);
+        $stmt->execute();
+
+        // Create admin notification
+        $admin_notification = "New post submission from {$author} requires review.";
+        $stmt = $conn->prepare("INSERT INTO admin_notifications (post_id, user_id, message) VALUES (?, ?, ?)");
+        $stmt->bind_param("iis", $post_id, $user_id, $admin_notification);
+        $stmt->execute();
+
+        $conn->commit();
+        echo json_encode(['success' => true, 'message' => 'Post submitted for review']);
+    } catch (Exception $e) {
+        $conn->rollback();
+        echo json_encode(['success' => false, 'message' => $e->getMessage()]);
     }
 
     $stmt->close();
