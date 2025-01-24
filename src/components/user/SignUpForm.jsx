@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Header from "../Header";
 import Footer from "../Footer";
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import zxcvbn from 'zxcvbn'; // Password strength checker
 
 export function SignUpForm() {
   const [formData, setFormData] = useState({
@@ -16,6 +17,13 @@ export function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
+  const [passwordValidation, setPasswordValidation] = useState({
+    minLength: false,
+    hasNumber: false,
+    hasSpecial: false,
+    hasUpper: false,
+    hasLower: false
+  });
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -56,6 +64,18 @@ export function SignUpForm() {
     }
   };
 
+  const validatePassword = (password) => {
+    const strength = zxcvbn(password);
+    return {
+      minLength: password.length >= 8,
+      hasNumber: /\d/.test(password),
+      hasSpecial: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+      hasUpper: /[A-Z]/.test(password),
+      hasLower: /[a-z]/.test(password),
+      score: strength.score
+    };
+  };
+
   const handleChange = (e) => {
     if (e.target.name === 'profile_image') {
       const file = e.target.files[0];
@@ -66,6 +86,9 @@ export function SignUpForm() {
       };
       reader.readAsDataURL(file);
     } else {
+      if (e.target.name === 'password') {
+        setPasswordValidation(validatePassword(e.target.value));
+      }
       setFormData({ ...formData, [e.target.name]: e.target.value });
     }
   };
@@ -173,6 +196,23 @@ export function SignUpForm() {
                       <EyeIcon className="h-5 w-5 text-gray-400" />
                     )}
                   </button>
+                  <div className="password-requirements mt-2">
+                    <p className={`text-sm ${passwordValidation.minLength ? 'text-green-600' : 'text-red-600'}`}>
+                      ✓ At least 8 characters
+                    </p>
+                    <p className={`text-sm ${passwordValidation.hasNumber ? 'text-green-600' : 'text-red-600'}`}>
+                      ✓ Contains a number
+                    </p>
+                    <p className={`text-sm ${passwordValidation.hasSpecial ? 'text-green-600' : 'text-red-600'}`}>
+                      ✓ Contains a special character
+                    </p>
+                    <p className={`text-sm ${passwordValidation.hasUpper ? 'text-green-600' : 'text-red-600'}`}>
+                      ✓ Contains an uppercase letter
+                    </p>
+                    <p className={`text-sm ${passwordValidation.hasLower ? 'text-green-600' : 'text-red-600'}`}>
+                      ✓ Contains a lowercase letter
+                    </p>
+                  </div>
                 </div>
                 <div className="relative">
                   <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">Confirm Password</label>
