@@ -9,6 +9,7 @@ import { UserProfile } from './components/user/UserProfile';
 import PostDetailsPage from './components/post/PostDetailsPage';
 import { AdminSignIn } from './components/admin/AdminSignIn';
 import { AdminDashboard } from './components/admin/AdminDashboard';
+import { VerificationSuccess } from './components/VerificationSuccess';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           <Route path="/posts/*" element={<PostDetailsPage />} />
           <Route path="/admin-signin" element={<AdminSignIn />} />
           <Route path="/admin-dashboard/*" element={<AdminDashboard />} />
+          <Route path="/verify-email" element={<VerificationSuccess />} />
         </Routes>
       </div>
     </Router>

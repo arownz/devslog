@@ -53,7 +53,7 @@ export function SignUpForm() {
 
       const data = await response.json();
       if (data.success) {
-        alert("Registration successful! Please sign in.");
+        alert("Registration successful! Please check your email to verify your account.");
         navigate('/signin');
       } else {
         alert(data.message || "Registration failed");
