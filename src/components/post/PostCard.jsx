@@ -33,8 +33,8 @@ export default function PostCard({
     }
   };
   const getLocalTime = (utcDateString) => {
-    const date = new Date(utcDateString);
-    return new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
+    // Just create a date object - JavaScript will automatically handle the timezone conversion
+    return new Date(utcDateString);
   };
 
   const timeAgo = created_at
@@ -131,7 +131,7 @@ export default function PostCard({
           alt={title}
         />
 
-        <div className={contentClass}>
+        <div className={contentClass}>  
           <h2 className="text-xl font-semibold mb-2">{title}</h2>
           <p className="text-gray-600 text-sm mb-4">
             <span className="text-green-700">{timeAgo}</span> by <span className="font-bold">{author}</span>

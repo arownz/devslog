@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { DarkModeProvider } from './context/DarkModeProvider'; // Updated import
 import DevlogHome from './components/guest/DevlogHome';
 import Posts from './components/guest/AllForumPosts';
 import About from './components/guest/About';
@@ -10,26 +11,33 @@ import PostDetailsPage from './components/post/PostDetailsPage';
 import { AdminSignIn } from './components/admin/AdminSignIn';
 import { AdminDashboard } from './components/admin/AdminDashboard';
 import { VerificationSuccess } from './components/VerificationSuccess';
+import SearchResults from './components/SearchResults';
+
+// Import the dark mode CSS
+import './styles/darkMode.css';
 
 function App() {
   return (
-    <Router>
-      <div className="App">
-        <Routes>
-          <Route path="/" element={<DevlogHome />} />
-          <Route path="/posts" element={<Posts />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/signup" element={<SignUpForm />} />
-          <Route path="/signin" element={<SignInForm />} />
-          <Route path="/user-dashboard/*" element={<UserDashboard />} />
-          <Route path="/user-profile" element={<UserProfile />} />
-          <Route path="/posts/*" element={<PostDetailsPage />} />
-          <Route path="/admin-signin" element={<AdminSignIn />} />
-          <Route path="/admin-dashboard/*" element={<AdminDashboard />} />
-          <Route path="/verify-email" element={<VerificationSuccess />} />
-        </Routes>
-      </div>
-    </Router>
+    <DarkModeProvider>
+      <Router>
+        <div className="App">
+          <Routes>
+            <Route path="/" element={<DevlogHome />} />
+            <Route path="/posts" element={<Posts />} />
+            <Route path="/posts/:postId" element={<PostDetailsPage />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/signup" element={<SignUpForm />} />
+            <Route path="/signin" element={<SignInForm />} />
+            <Route path="/user-dashboard/*" element={<UserDashboard />} />
+            <Route path="/user-profile" element={<UserProfile />} />
+            <Route path="/admin-signin" element={<AdminSignIn />} />
+            <Route path="/admin-dashboard/*" element={<AdminDashboard />} />
+            <Route path="/verify-email" element={<VerificationSuccess />} />
+            <Route path="/search-results" element={<SearchResults />} />
+          </Routes>
+        </div>
+      </Router>
+    </DarkModeProvider>
   );
 }
 

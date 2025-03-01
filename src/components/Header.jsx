@@ -1,12 +1,14 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Modal, message } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import AddPost from "./post/AddPost";
 import PostDetails from "./post/PostDetails";
+import { useDarkMode } from "../hooks/useDarkMode"; // Import from the hooks directory
 
 export default function Header() {
-  const { isDarkMode, toggleDarkMode } = useState();
+  // Replace useState with the custom hook
+  const { isDarkMode, toggleDarkMode } = useDarkMode();
   const [showModal, setShowModal] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
@@ -23,6 +25,8 @@ export default function Header() {
   const [rejectionReason, setRejectionReason] = useState('');
   const notificationRef = useRef(null);
   const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
 
   const getDashboardLink = () => {
     if (isAdmin) {
@@ -55,7 +59,7 @@ export default function Header() {
     }
   }, []);
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     if (!isLoggedIn) return;
 
     try {
@@ -76,7 +80,7 @@ export default function Header() {
     } catch (error) {
       console.error('Error fetching notifications:', error);
     }
-  };
+  }, [isLoggedIn, isAdmin]);
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -84,7 +88,7 @@ export default function Header() {
       const interval = setInterval(fetchNotifications, 30000);
       return () => clearInterval(interval);
     }
-  }, [isLoggedIn, isAdmin]);
+  }, [isLoggedIn, isAdmin, fetchNotifications]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -199,6 +203,44 @@ export default function Header() {
     return <p>{notification.message}</p>;
   };
 
+  // Handle search input changes
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  // Handle search form submission
+  const handleSearchSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!searchQuery.trim()) {
+      return;
+    }
+    
+    setIsSearching(true);
+    
+    try {
+      const response = await fetch(`http://localhost/devslog/server/search_posts.php?query=${encodeURIComponent(searchQuery)}`, {
+        credentials: 'include'
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        // Navigate to search results page with query parameter
+        navigate(`/search-results?q=${encodeURIComponent(searchQuery)}`);
+      } else {
+        message.error('No search results found.');
+      }
+    } catch (error) {
+      console.error('Error performing search:', error);
+      message.error('An error occurred while searching.');
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  // Add this function to handle search clearing
+
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 h-16 shadow-md ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
       }`}>
@@ -215,7 +257,6 @@ export default function Header() {
         {/* Guest Header */}
         {!isLoggedIn && (
           <nav className="flex space-x-6 text-lg">
-            {/* <Link to="/posts" className="text-gray-700 hover:text-green-700 transition-colors duration-200">Forum</Link> */}
             <Link to="/about" className="text-gray-700 hover:text-green-700 transition-colors duration-200">About Us?</Link>
           </nav>
         )}
@@ -235,21 +276,33 @@ export default function Header() {
           </nav>
         )}
 
-        {/* Search Bar (centered for all views) */}
-        <div className="flex-grow flex justify-center">
-          <form className="w-1/3 flex items-center bg-gray-100 rounded-full px-4 py-2">
-            <input
-              type="search"
-              placeholder="Search..."
-              className="w-full bg-transparent border-none outline-none"
-            />
-            <button type="submit" aria-label="Search">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </button>
-          </form>
-        </div>
+        {/* Search Bar - ONLY for regular logged in users (not admins) */}
+        {isLoggedIn && !isAdmin && (
+          <div className="flex-grow flex justify-center">
+            <form onSubmit={handleSearchSubmit} className="w-1/3 flex items-center bg-gray-100 rounded-full px-4 py-2">
+              <input
+                type="search"
+                placeholder="Search posts..."
+                value={searchQuery}
+                onChange={handleSearchChange}
+                className="w-full bg-transparent border-none outline-none"
+              />
+              {/* Removed custom X button since browsers provide their own */}
+              <button 
+                type="submit" 
+                aria-label="Search"
+                disabled={isSearching}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className={`h-5 w-5 ${isSearching ? 'text-green-500' : 'text-gray-500'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </button>
+            </form>
+          </div>
+        )}
+
+        {/* For admin and guest users, add empty flex div to maintain spacing */}
+        {(!isLoggedIn || isAdmin) && <div className="flex-grow"></div>}
 
         <div className="flex items-center ml-auto space-x-4">
           <button onClick={toggleDarkMode} className="p-2 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors duration-200">

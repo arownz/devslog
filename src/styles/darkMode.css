@@ -1,0 +1,176 @@
+:root {
+  --light-bg-primary: #ffffff;
+  --light-bg-secondary: #f5f5f5;
+  --light-text-primary: #333333;
+  --light-text-secondary: #666666;
+  --light-border: #e0e0e0;
+  --light-card-bg: #ffffff;
+  --light-input-bg: #ffffff;
+  --light-hover: #f0f0f0;
+  --light-button-bg: #4ade80;
+  --light-button-text: #ffffff;
+  
+  /* Default to light theme variables */
+  --bg-primary: var(--light-bg-primary);
+  --bg-secondary: var(--light-bg-secondary);
+  --text-primary: var(--light-text-primary);
+  --text-secondary: var(--light-text-secondary);
+  --border-color: var(--light-border);
+  --card-bg: var(--light-card-bg);
+  --input-bg: var(--light-input-bg);
+  --hover-bg: var(--light-hover);
+  --button-bg: var(--light-button-bg);
+  --button-text: var(--light-button-text);
+}
+
+/* Dark mode variables */
+.dark-mode {
+  --bg-primary: #121212;
+  --bg-secondary: #1e1e1e;
+  --text-primary: #f5f5f5;
+  --text-secondary: #b0b0b0;
+  --border-color: #444444;
+  --card-bg: #2d2d2d;
+  --input-bg: #333333;
+  --hover-bg: #333333;
+  --button-bg: #38a169;
+  --button-text: #ffffff;
+}
+
+/* General styles */
+.dark-mode body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Header styles */
+.dark-mode header.bg-white {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .text-gray-900 {
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .text-gray-700 {
+  color: var(--text-secondary) !important;
+}
+
+/* Card styles */
+.dark-mode .bg-white {
+  background-color: var(--card-bg) !important;
+}
+
+.dark-mode .shadow-md,
+.dark-mode .shadow-lg {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Form elements */
+.dark-mode input,
+.dark-mode textarea,
+.dark-mode select {
+  background-color: var(--input-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.dark-mode input::placeholder,
+.dark-mode textarea::placeholder {
+  color: var(--text-secondary) !important;
+}
+
+/* Button styles */
+.dark-mode .bg-green-500,
+.dark-mode .bg-green-600 {
+  background-color: var(--button-bg) !important;
+}
+
+.dark-mode .hover\:bg-gray-100:hover {
+  background-color: var(--hover-bg) !important;
+}
+
+/* Modal styles */
+.dark-mode .modal-content {
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Background colors */
+.dark-mode .bg-gray-50,
+.dark-mode .bg-gray-100 {
+  background-color: var(--bg-secondary) !important;
+}
+
+/* Specific components */
+.dark-mode .dropdown-menu {
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Post cards */
+.dark-mode .post-card {
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* Tables */
+.dark-mode table {
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark-mode th,
+.dark-mode td {
+  border-color: var(--border-color) !important;
+}
+
+/* Various text colors */
+.dark-mode .text-black {
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .text-gray-600,
+.dark-mode .text-gray-700,
+.dark-mode .text-gray-800 {
+  color: var(--text-secondary) !important;
+}
+
+/* Transparent backgrounds */
+.dark-mode .bg-transparent {
+  background-color: transparent !important;
+}
+
+/* Add these styles for ReactQuill in dark mode */
+.dark-mode .ql-editor {
+  color: white !important;
+}
+
+.dark-mode .ql-editor h1,
+.dark-mode .ql-editor h2,
+.dark-mode .ql-editor h3,
+.dark-mode .ql-editor h4,
+.dark-mode .ql-editor h5,
+.dark-mode .ql-editor h6,
+.dark-mode .ql-editor p,
+.dark-mode .ql-editor span,
+.dark-mode .ql-editor a {
+  color: white !important;
+}
+
+.dark-mode .prose {
+  color: white !important;
+}
+
+.dark-mode .prose h1,
+.dark-mode .prose h2, 
+.dark-mode .prose h3,
+.dark-mode .prose h4,
+.dark-mode .prose p,
+.dark-mode .prose ul,
+.dark-mode .prose ol,
+.dark-mode .prose li {
+  color: white !important;
+}
