@@ -120,8 +120,9 @@ export function UserProfile() {
       });
 
       const data = await response.json();
+      
       if (data.success) {
-        message.success('Password updated successfully');
+        message.success(data.message);
         setShowPasswordModal(false);
         passwordForm.resetFields();
       } else {
@@ -129,7 +130,7 @@ export function UserProfile() {
       }
     } catch (error) {
       console.error('Error:', error);
-      message.error('Error updating password');
+      message.error('Error sending password update request');
     }
   };
 
@@ -149,22 +150,22 @@ export function UserProfile() {
       formData.append('id', editingPost.id);
       formData.append('title', values.title);
       formData.append('content', content); // Use the content state instead of values.content
-      
+
       if (values.thumbnail?.fileList?.[0]?.originFileObj) {
         formData.append('thumbnail', values.thumbnail.fileList[0].originFileObj);
       }
-  
+
       console.log('Sending update request for post:', editingPost.id); // Debug log
-  
+
       const response = await fetch('http://localhost/devslog/server/update_user_post.php', {
         method: 'POST',
         body: formData,
         credentials: 'include' // Important for session cookies
       });
-  
+
       const data = await response.json();
       console.log('Update response:', data); // Debug log
-  
+
       if (data.success) {
         message.success('Post updated successfully');
         setIsEditModalVisible(false);
