@@ -13,6 +13,8 @@ import { AdminDashboard } from './components/admin/AdminDashboard';
 import { VerificationSuccess } from './components/VerificationSuccess';
 import SearchResults from './components/SearchResults';
 import { VerifyPassword } from './components/VerifyPassword'; // New import
+import { ForgotPassword } from './components/user/ForgotPassword';
+import { ResetPassword } from './components/user/ResetPassword';
 
 // Import the dark mode CSS
 import './styles/darkMode.css';
@@ -36,6 +38,8 @@ function App() {
             <Route path="/verify-email" element={<VerificationSuccess />} />
             <Route path="/search-results" element={<SearchResults />} />
             <Route path="/verify-password" element={<VerifyPassword />} /> {/* New route */}
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
           </Routes>
         </div>
       </Router>

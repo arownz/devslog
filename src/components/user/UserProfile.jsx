@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { message, Upload, Form, Input, Button, Modal, Tabs } from 'antd';
-import { UploadOutlined, EditOutlined, UserOutlined } from '@ant-design/icons';
+import { UploadOutlined, EditOutlined, UserOutlined, EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
 import Header from '../Header';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -12,13 +12,15 @@ export function UserProfile() {
   const [userData, setUserData] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [form] = Form.useForm();
-  const [passwordForm] = Form.useForm();
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [userPosts, setUserPosts] = useState([]);
   const [editingPost, setEditingPost] = useState(null);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [editForm] = Form.useForm();
   const [content, setContent] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [isLoadingPassword, setIsLoadingPassword] = useState(false);
 
   useEffect(() => {
     fetchUserProfile();
@@ -107,36 +109,11 @@ export function UserProfile() {
     }
   };
 
-  const handlePasswordUpdate = async (values) => {
-    const formData = new FormData();
-    formData.append('current_password', values.currentPassword);
-    formData.append('new_password', values.newPassword);
-
-    try {
-      const response = await fetch('http://localhost/devslog/server/update_user_profile.php', {
-        method: 'POST',
-        body: formData,
-        credentials: 'include'
-      });
-
-      const data = await response.json();
-      
-      if (data.success) {
-        message.success(data.message);
-        setShowPasswordModal(false);
-        passwordForm.resetFields();
-      } else {
-        message.error(data.message || 'Failed to update password');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      message.error('Error sending password update request');
-    }
-  };
-
+  
   const showEditPostModal = (post) => {
     console.log('Editing post:', post); // Debug log
     setEditingPost(post);
+    setContent(post.content); // Initialize content state with post content
     editForm.setFieldsValue({
       title: post.title,
       content: post.content
@@ -202,6 +179,37 @@ export function UserProfile() {
     } catch (error) {
       console.error('Error:', error);
       message.error('Error deleting post');
+    }
+  };
+
+  const handleOpenPasswordModal = async () => {
+    setShowPassword(false);
+    setCurrentPassword('••••••••'); // Default masked password
+    setShowPasswordModal(true);
+  };
+
+  const handleRequestPasswordReset = async () => {
+    setIsLoadingPassword(true);
+    
+    try {
+      const response = await fetch('http://localhost/devslog/server/request_password_reset.php', {
+        method: 'POST',
+        credentials: 'include'
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        message.success('Password reset link has been sent to your email');
+        setShowPasswordModal(false);
+      } else {
+        message.error(data.message || 'Failed to send password reset link');
+      }
+    } catch (error) {
+      console.error('Error requesting password reset:', error);
+      message.error('An error occurred while processing your request');
+    } finally {
+      setIsLoadingPassword(false);
     }
   };
 
@@ -319,7 +327,7 @@ export function UserProfile() {
                   </Form.Item>
 
                   <div className="flex justify-between">
-                    <Button onClick={() => setShowPasswordModal(true)} type="link">
+                    <Button onClick={handleOpenPasswordModal} type="link">
                       Change Password
                     </Button>
                     <div className="space-x-4">
@@ -386,53 +394,54 @@ export function UserProfile() {
         onCancel={() => setShowPasswordModal(false)}
         footer={null}
       >
-        <Form
-          form={passwordForm}
-          layout="vertical"
-          onFinish={handlePasswordUpdate}
-        >
-          <Form.Item
-            name="currentPassword"
-            label="Current Password"
-            rules={[{ required: true, message: 'Please input your current password!' }]}
-          >
-            <Input.Password />
-          </Form.Item>
+        <div className="py-4">
+          <div className="mb-6">
+            <p className="text-gray-700 mb-2">Current Password</p>
+            <div className="relative">
+              <Input.Password
+                value={currentPassword}
+                disabled
+                visibilityToggle={false}
+                className="pr-10"
+              />
+              <button 
+                type="button" 
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 flex items-center pr-3"
+              >
+                {showPassword ? (
+                  <EyeInvisibleOutlined className="text-gray-500" />
+                ) : (
+                  <EyeOutlined className="text-gray-500" />
+                )}
+              </button>
+            </div>
+            <p className="text-xs text-gray-500 mt-2">
+              For security reasons, we cannot display your actual password.
+            </p>
+          </div>
 
-          <Form.Item
-            name="newPassword"
-            label="New Password"
-            rules={[{ required: true, message: 'Please input your new password!' }]}
-          >
-            <Input.Password />
-          </Form.Item>
-
-          <Form.Item
-            name="confirmPassword"
-            label="Confirm New Password"
-            dependencies={['newPassword']}
-            rules={[
-              { required: true, message: 'Please confirm your new password!' },
-              ({ getFieldValue }) => ({
-                validator(_, value) {
-                  if (!value || getFieldValue('newPassword') === value) {
-                    return Promise.resolve();
-                  }
-                  return Promise.reject(new Error('The two passwords do not match!'));
-                },
-              }),
-            ]}
-          >
-            <Input.Password />
-          </Form.Item>
-
+          <div className="mb-4">
+            <p className="text-gray-700">Need to change your password?</p>
+            <p className="text-sm text-gray-500 mb-4">
+              We&apos;ll send a password reset link to your email address.
+            </p>
+          </div>
+          
           <div className="flex justify-end space-x-4">
-            <Button onClick={() => setShowPasswordModal(false)}>Cancel</Button>
-            <Button type="primary" htmlType="submit" className="bg-green-600">
-              Update Password
+            <Button onClick={() => setShowPasswordModal(false)}>
+              Cancel
+            </Button>
+            <Button 
+              type="primary" 
+              onClick={handleRequestPasswordReset} 
+              className="bg-green-600"
+              loading={isLoadingPassword}
+            >
+              Send Password Reset Link
             </Button>
           </div>
-        </Form>
+        </div>
       </Modal>
 
       <Modal

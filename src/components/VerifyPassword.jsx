@@ -1,21 +1,23 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-// Remove the Ant Design message import since we'll use our own UI
+import { Form, Input, Button } from 'antd';
 import Header from './Header';
 
 export function VerifyPassword() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
   const [verifying, setVerifying] = useState(true);
-  const [status, setStatus] = useState('pending'); // pending, success, error, already-used
-  const [statusMessage, setStatusMessage] = useState('');
+  const [status, setStatus] = useState('pending'); 
+  const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
+  const [form] = Form.useForm();
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (!token) {
       setVerifying(false);
       setStatus('error');
-      setStatusMessage('No token provided');
+      setErrorMessage('No token provided');
       return;
     }
 
@@ -24,64 +26,76 @@ export function VerifyPassword() {
         console.log("Verifying token:", token);
         
         const response = await fetch(
-          `http://localhost/devslog/server/verify_password.php?token=${encodeURIComponent(token)}`,
+          `http://localhost/devslog/server/check_reset_token.php?token=${encodeURIComponent(token)}`,
           { credentials: 'include' }
         );
-
-        console.log("Response status:", response.status);
         
-        // Handle potential non-JSON response
-        const text = await response.text();
-        let data;
-        try {
-          data = JSON.parse(text);
-        } catch (e) {
-          console.error("Failed to parse response as JSON:", text);
-          setVerifying(false);
-          setStatus('error');
-          setStatusMessage('Invalid server response');
-          return;
-        }
-        
-        console.log("Response data:", data);
+        const data = await response.json();
         
         setVerifying(false);
 
         if (data.success) {
-          setStatus('success');
-          setStatusMessage(data.message);
-          
-          // Redirect after a short delay
-          setTimeout(() => {
-            navigate(data.redirect || '/signin');
-          }, 3000);
+          // If token is valid but doesn't have a password yet, show the form
+          setStatus('needs_password');
         } else {
-          // Special case for "Token already used"
-          if (data.message && data.message.includes('already used')) {
-            setStatus('already-used');
-            setStatusMessage('This password reset link has been used. Your password was changed successfully.');
-          } else {
-            setStatus('error');
-            setStatusMessage(data.message || 'Verification failed');
-          }
+          setStatus('error');
+          setErrorMessage(data.message || 'Verification failed');
         }
       } catch (error) {
         console.error('Error during verification:', error);
         setVerifying(false);
         setStatus('error');
-        setStatusMessage('An unexpected error occurred');
+        setErrorMessage('An unexpected error occurred');
       }
     };
 
     verifyToken();
-  }, [token, navigate]);
+  }, [token]);
+
+  const handleSubmit = async (values) => {
+    if (!token) return;
+    
+    setSubmitting(true);
+    
+    try {
+      const response = await fetch('http://localhost/devslog/server/verify_password.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 
+          token: token,
+          new_password: values.password 
+        }),
+        credentials: 'include'
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setStatus('success');
+        setTimeout(() => {
+          navigate('/signin');
+        }, 2000);
+      } else {
+        setStatus('error');
+        setErrorMessage(data.message);
+      }
+    } catch (error) {
+      console.error('Error setting new password:', error);
+      setStatus('error');
+      setErrorMessage('Failed to set new password');
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-100">
       <Header />
       <div className="container mx-auto px-4 py-8 mt-16">
         <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-8 text-center">
-          <h1 className="text-2xl font-bold mb-4">Password Change Verification</h1>
+          <h1 className="text-2xl font-bold mb-4">Password Reset</h1>
           
           {verifying ? (
             <div className="flex flex-col items-center p-4">
@@ -90,6 +104,56 @@ export function VerifyPassword() {
             </div>
           ) : (
             <div>
+              {status === 'needs_password' && (
+                <div>
+                  <p className="mb-4 text-gray-700">Please enter your new password:</p>
+                  <Form
+                    form={form}
+                    layout="vertical"
+                    onFinish={handleSubmit}
+                  >
+                    <Form.Item
+                      name="password"
+                      rules={[
+                        { required: true, message: 'Please enter your new password' },
+                        { min: 8, message: 'Password must be at least 8 characters' }
+                      ]}
+                    >
+                      <Input.Password placeholder="New password" />
+                    </Form.Item>
+                    
+                    <Form.Item
+                      name="confirmPassword"
+                      dependencies={['password']}
+                      rules={[
+                        { required: true, message: 'Please confirm your new password' },
+                        ({ getFieldValue }) => ({
+                          validator(_, value) {
+                            if (!value || getFieldValue('password') === value) {
+                              return Promise.resolve();
+                            }
+                            return Promise.reject(new Error('The two passwords do not match'));
+                          },
+                        }),
+                      ]}
+                    >
+                      <Input.Password placeholder="Confirm new password" />
+                    </Form.Item>
+                    
+                    <Form.Item>
+                      <Button 
+                        type="primary" 
+                        htmlType="submit" 
+                        loading={submitting}
+                        className="bg-green-600 hover:bg-green-700"
+                      >
+                        Set New Password
+                      </Button>
+                    </Form.Item>
+                  </Form>
+                </div>
+              )}
+              
               {status === 'success' && (
                 <div className="bg-green-100 p-4 rounded">
                   <p className="text-green-700">Your password has been updated successfully!</p>
@@ -97,27 +161,20 @@ export function VerifyPassword() {
                 </div>
               )}
               
-              {status === 'already-used' && (
-                <div className="bg-blue-100 p-4 rounded">
-                  <p className="text-blue-700">Password already updated</p>
-                  <p className="text-gray-600 mt-2">{statusMessage}</p>
-                </div>
-              )}
-              
               {status === 'error' && (
                 <div className="bg-red-100 p-4 rounded">
-                  <p className="text-red-700">Failed to verify your password change request.</p>
-                  <p className="text-gray-600 mt-2">{statusMessage}</p>
+                  <p className="text-red-700">Failed to reset your password.</p>
+                  <p className="text-gray-600 mt-2">{errorMessage}</p>
                 </div>
               )}
               
               <div className="mt-6">
-                <button
+                <Button
                   onClick={() => navigate('/signin')}
                   className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
                 >
                   Go to Sign In
-                </button>
+                </Button>
               </div>
             </div>
           )}

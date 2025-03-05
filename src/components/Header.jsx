@@ -422,9 +422,9 @@ export default function Header() {
           ) : (
             <button
               onClick={handleSignInClick}
-              className="bg-green-600 text-white px-4 py-2 rounded-full hover:bg-green-700 transition-colors duration-200"
-            >
-              Sign In
+              className="bg-gradient-to-r from-green-500 to-blue-600 text-white px-4 py-2 rounded-full hover:from-green-600 hover:to-blue-700 transition-all duration-200"
+              >
+                              Sign In
             </button>
           )}
 

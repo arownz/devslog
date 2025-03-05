@@ -122,9 +122,9 @@ export function SignInForm() {
                                     </button>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <Link to="/ForgotPassword" className="text-sm text-green-600 hover:text-green-500">
-                                        Forgot Password?
-                                    </Link>
+                                <Link to="/forgot-password" className="text-sm text-green-600 hover:text-green-500">
+    Forgot Password?
+</Link>
                                 </div>
                                 <button
                                     type="submit"
