@@ -129,22 +129,41 @@ const UsersManage = () => {
     }
   };
 
-
   const deleteUser = async (id) => {
     try {
-      const response = await fetch('http://localhost/devslog/server/admin_delete_user.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id }),
-        credentials: 'include',
+      Modal.confirm({
+        title: 'Are you sure you want to delete this user?',
+        content: 'This action will delete the user and potentially all related data.',
+        okText: 'Yes, delete',
+        okType: 'danger',
+        cancelText: 'Cancel',
+        onOk: async () => {
+          const response = await fetch('http://localhost/devslog/server/admin_delete_user.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id }),
+            credentials: 'include',
+          });
+          
+          const text = await response.text();
+          let data;
+          
+          try {
+            data = JSON.parse(text);
+          } catch (error) {
+            console.error('Error parsing response:', text);
+            message.error('Server returned an invalid response');
+            return;
+          }
+          
+          if (data.success) {
+            message.success('User deleted successfully');
+            fetchUsers();
+          } else {
+            message.error(data.message || 'Failed to delete user');
+          }
+        }
       });
-      const data = await response.json();
-      if (data.success) {
-        message.success('User deleted successfully');
-        fetchUsers();
-      } else {
-        message.error('Failed to delete user');
-      }
     } catch (error) {
       console.error('Error deleting user:', error);
       message.error('Failed to delete user');

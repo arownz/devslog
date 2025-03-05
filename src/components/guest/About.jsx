@@ -62,15 +62,7 @@ const About = () => {
           <div className="container mx-auto px-4">
             <h2 className="text-3xl font-bold mb-12 text-center">Meet Our Team</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="text-center">
-                <img 
-                  src="https://img.freepik.com/free-vector/businessman-character-avatar-isolated_24877-60111.jpg" 
-                  alt="Harold F. Pasion" 
-                  className="w-32 h-32 rounded-full mx-auto mb-4"
-                />
-                <h3 className="text-xl font-semibold">Harold F. Pasion</h3>
-                <p className="text-gray-600">Full Stack Developer</p>
-              </div>
+              
               <div className="text-center">
                 <img 
                   src="https://img.freepik.com/free-vector/businessman-character-avatar-isolated_24877-60111.jpg" 
@@ -80,6 +72,17 @@ const About = () => {
                 <h3 className="text-xl font-semibold">Vhinz Neo Palaya</h3>
                 <p className="text-gray-600">Front-end Developer</p>
               </div>
+
+              <div className="text-center">
+                <img 
+                  src="https://img.freepik.com/free-vector/businessman-character-avatar-isolated_24877-60111.jpg" 
+                  alt="Harold F. Pasion" 
+                  className="w-32 h-32 rounded-full mx-auto mb-4"
+                />
+                <h3 className="text-xl font-semibold">Harold F. Pasion</h3>
+                <p className="text-gray-600">Full-Stack Developer</p>
+              </div>
+
               <div className="text-center">
                 <img 
                   src="https://img.freepik.com/free-vector/businessman-character-avatar-isolated_24877-60111.jpg" 
